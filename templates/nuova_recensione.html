@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Aggiungi Recensione</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f7f6;">
+
+    <h2>Nessuna recensione trovata per: <span style="color: #007BFF;">{{ url }}</span></h2>
+    <p>Sii il primo a recensire questo sito!</p>
+
+    <form action="/salva_recensione" method="POST" style="background: white; padding: 20px; width: 300px; margin: 0 auto; border-radius: 10px; box-shadow: 0px 0px 10px #ccc;">
+        
+        <input type="hidden" name="url_sito" value="{{ url }}">
+
+        <input type="text" name="autore" placeholder="Il tuo nome" required style="width: 90%; padding: 10px; margin-bottom: 10px;"><br>
+
+        <textarea name="testo_recensione" placeholder="Scrivi qui la tua recensione..." required rows="5" style="width: 90%; padding: 10px; margin-bottom: 10px;"></textarea><br>
+
+        <label>Voto:</label><br>
+        <select name="voto" style="width: 95%; padding: 10px; margin-bottom: 15px;">
+            <option value="5">5 Stelle (Ottimo) ⭐️⭐️⭐️⭐️⭐️</option>
+            <option value="4">4 Stelle (Buono) ⭐️⭐️⭐️⭐️</option>
+            <option value="3">3 Stelle (Sufficiente) ⭐️⭐️⭐️</option>
+            <option value="2">2 Stelle (Scarso) ⭐️⭐️</option>
+            <option value="1">1 Stella (Pessimo) ⭐️</option>
+        </select><br>
+
+        <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Salva Recensione
+        </button>
+    </form>
+
+</body>
+</html>

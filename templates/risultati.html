@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Recensioni per {{ url }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f7f6;">
+
+    <h1>Recensioni per: <span style="color: #007BFF;">{{ url }}</span></h1>
+    <p style="margin-bottom: 30px;"><a href="/" style="color: #007BFF; text-decoration: none;">← Torna alla Home</a></p>
+    
+    <div style="max-width: 600px; margin: 0 auto; text-align: left;">
+        {% for r in recensioni %}
+        <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px #ccc;">
+            <strong>{{ r[2] }}</strong> ha dato un voto di: {{ r[4] }}/5 ⭐️
+            <p style="margin-top: 8px; color: #555; font-style: italic;">"{{ r[3] }}"</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="margin-top: 40px;">
+        <form action="/cerca" method="POST">
+            <input type="hidden" name="url_sito" value="{{ url }}">
+            </form>
+        <p><a href="/" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Scrivi un'altra recensione</a></p>
+    </div>
+
+</body>
+</html>
