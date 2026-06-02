@@ -57,9 +57,87 @@
             border-radius: 6px;
             transition: width 0.4s ease;
         }
+        /* --- STILE HEADER GENERALE --- */
+        .main-header {
+            background: #ffffff;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+        }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo-link {
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logo-composite {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 270px;
+            height: 60px;
+        }
+        .logo-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .logo-text {
+            position: absolute;
+            left: 60px;
+            top: 8px;
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #111111;
+            z-index: 2;
+            letter-spacing: -0.8px;
+        }
+        .nav-link {
+            color: #444;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+        .nav-link:hover {
+            color: #007bff;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f7f6;">
+<header class="main-header">
+    <div class="header-container">
+        <a href="/" class="logo-link">
+            <div class="logo-composite">
+                <svg class="logo-svg" viewBox="0 0 270 60" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M28,6 L36,21 L52,21 L39,31 L44,46 L28,36 L12,46 L17,31 L4,21 L20,21 Z" 
+                          fill="#FFCC00" stroke="#FFB300" stroke-width="2.5" stroke-linejoin="round"/>
+                    
+                    <path d="M28,36 Q80,59 255,44" 
+                          fill="none" stroke="#FFCC00" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+                <span class="logo-text">RateThatSite</span>
+            </div>
+        </a>
+        
+        <nav class="nav-menu">
+            <a href="/chi-siamo" class="nav-link">Chi siamo</a>
+        </nav>
+    </div>
+</header>
 
     <h1>Recensioni per: <span style="color: #007BFF;">{{ url }}</span></h1>
     <p style="margin-bottom: 30px;"><a href="/" style="color: #007BFF; text-decoration: none;">← Torna alla Home</a></p>
