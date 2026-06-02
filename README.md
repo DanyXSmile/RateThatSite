@@ -13,4 +13,4 @@ Una piattaforma web per cercare, leggere e aggiungere recensioni su qualsiasi si
 4. Apri il browser all'indirizzo `http://127.0.0.1:5000`
 
 ## Link al sito live
-*(Presto aggiungeremo qui il link di Vercel!)*
+rate-that-site-jc18.vercel.app
