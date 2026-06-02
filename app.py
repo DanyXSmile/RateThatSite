@@ -107,7 +107,9 @@ def cerca():
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
     autore = session.get('username', 'Anonimo')
-    site_url = request.form.get('site_url', '').strip()
+    # Support both field names used in templates: 'site_url' and legacy 'url_sito'
+    site_url = request.form.get('site_url') or request.form.get('url_sito') or ''
+    site_url = site_url.strip()
     comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
     file_foto = request.files.get('foto')
