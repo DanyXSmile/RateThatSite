@@ -44,9 +44,32 @@ def login():
             return redirect(url_for('index'))
     return '''
     <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+        <h2>Benvenuto su RateThatSite! ⭐️</h2>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Inserisci il tuo nome" required style="padding:10px; min-width:250px;"><br><br>
+            <button type="submit" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer;">Entra nel sito</button>
+        </form>
+    </div>
+    '''
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# 3. Rotta per la Ricerca (Corretta per supportare sia POST che GET)
+@app.route('/cerca', methods=['GET', 'POST'])
+def cerca():
+    if request.method == 'POST':
+        site_url = request.form.get('site_url', '').strip()
+    else:
+        site_url = request.args.get('url', '').strip()
+
+    if not site_url:
+        return redirect(url_for('index'))
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
+    # Cerchiamo se ci sono recensioni per questo URL
     cursor.execute('SELECT * FROM reviews WHERE site_url = ?', (site_url,))
     recensioni_trovate = cursor.fetchall()
     conn.close()
@@ -79,30 +102,6 @@ def login():
         )
     else:
         return render_template('nuova_recensione.html', url=site_url)
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-# 3. Rotta per la Ricerca (Corretta per supportare sia POST che GET)
-@app.route('/cerca', methods=['GET', 'POST'])
-def cerca():
-    if request.method == 'POST':
-        site_url = request.form.get('site_url', '').strip()
-    else:
-        site_url = request.args.get('url', '').strip()
-
-    if not site_url:
-        return redirect(url_for('index'))
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Cerchiamo le recensioni per il sito selezionato
-    cursor.execute('SELECT autore, comment, rating, foto_recensione FROM reviews WHERE site_url = ?', (site_url,))
-    recensioni_trovate = cursor.fetchall()
-    conn.close()
-    
-    return render_template('risultati.html', url_cercato=site_url, recensioni=recensioni_trovate)
 
 # 4. Rotta per l'aggiunta di una recensione (con foto opzionale)
 @app.route('/aggiungi_recensione', methods=['POST'])
