@@ -115,35 +115,45 @@
                         const hiddenInput = document.getElementById('fotoBase64');
 
                         if (file) {
-                            // 1. Blocchiamo il pulsante di invio così l'utente aspetta il caricamento completo
                             submitBtn.disabled = true;
                             submitBtn.style.background = '#85929E';
-                            submitBtn.innerText = 'Attendi il caricamento della foto...';
-                            
-                            // 2. Mostriamo la scritta di caricamento in corso
+                            submitBtn.innerText = 'Ottimizzazione immagine...';
                             stato.style.display = 'block';
                             stato.style.color = '#d39e00';
-                            stato.innerText = '⏳ Lettura e ottimizzazione della foto in corso...';
+                            stato.innerText = '⏳ Compressione e ottimizzazione della foto in corso...';
 
                             const reader = new FileReader();
-                            
-                            // Quando il browser finisce di convertire la foto:
-                            reader.onloadend = function() {
-                                // Salviamo la foto convertita nel campo nascosto
-                                hiddenInput.value = reader.result;
-                                
-                                // 3. Sblocchiamo il tasto invia e cambiamo il messaggio in verde
-                                submitBtn.disabled = false;
-                                submitBtn.style.background = '#28a745';
-                                submitBtn.innerText = 'Pubblica Recensione';
-                                stato.style.color = '#28a745';
-                                stato.innerText = '✅ Foto caricata con successo! Ora puoi pubblicare.';
+                            reader.onload = function(event) {
+                                const img = new Image();
+                                img.onload = function() {
+                                    const canvas = document.createElement('canvas');
+                                    let width = img.width;
+                                    let height = img.height;
+
+                                    const max_size = 600;
+                                    if (width > max_size) {
+                                        height *= max_size / width;
+                                        width = max_size;
+                                    }
+
+                                    canvas.width = width;
+                                    canvas.height = height;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(img, 0, 0, width, height);
+
+                                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                                    hiddenInput.value = dataUrl;
+
+                                    submitBtn.disabled = false;
+                                    submitBtn.style.background = '#28a745';
+                                    submitBtn.innerText = 'Pubblica Recensione';
+                                    stato.style.color = '#28a745';
+                                    stato.innerText = '✅ Foto ottimizzata e pronta per il caricamento sicuro!';
+                                };
+                                img.src = event.target.result;
                             };
-                            
-                            // Avvia la lettura del file
                             reader.readAsDataURL(file);
                         } else {
-                            // Se l'utente cancella il file selezionato, resetta tutto
                             hiddenInput.value = '';
                             stato.style.display = 'none';
                             submitBtn.disabled = false;

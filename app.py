@@ -2,7 +2,9 @@ import os
 from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
-app.secret_key = 'chiave_segreta_assoluta_rate_that_site_12345'
+
+# CHIAVE DI SICUREZZA ROBUSTA PER LE SESSIONI DI VERCEL
+app.secret_key = os.environ.get("SECRET_KEY", "chiave_super_segreta_per_le_recensioni_12345")
 
 @app.before_request
 def richiedi_nome():
