@@ -1,35 +1,11 @@
-import sqlite3
 import os
 from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
-# Usiamo una chiave fissa e sicura per evitare che la sessione scada a caso su Vercel
-app.secret_key = 'chiave_segreta_assoluta_rate_that_site'
+# Chiave segreta per rendere sicuri e persistenti i dati salvati nei cookie dell'utente
+app.secret_key = 'chiave_segreta_assoluta_rate_that_site_12345'
 
-def get_db_connection():
-    # Se siamo online su Vercel, forziamo il database in memoria
-    if os.environ.get('VERCEL') or os.environ.get('NOW_REGION'):
-        conn = sqlite3.connect(':memory:', check_same_thread=False)
-    else:
-        # In locale creiamo il file fisico pulito
-        conn = sqlite3.connect('database.db', check_same_thread=False)
-    
-    # Assicuriamo che la tabella esista SEMPRE prima di restituire la connessione
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS reviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            autore TEXT NOT NULL,
-            site_url TEXT NOT NULL,
-            comment TEXT NOT NULL,
-            rating INTEGER,
-            foto_recensione TEXT
-        )
-    ''')
-    conn.commit()
-    return conn
-
-# 1. Controllo di sicurezza: se l'utente non ha un nome registrato nei cookie, lo mandiamo al login
+# Controllo iniziale: se l'utente non ha un nome profilo, lo forziamo a fare il login
 @app.before_request
 def richiedi_nome():
     if 'username' not in session and request.endpoint not in ['login', 'static']:
@@ -41,6 +17,9 @@ def login():
         nome = request.form.get('username', '').strip()
         if nome:
             session['username'] = nome
+            # Inizializziamo una lista vuota di recensioni nei cookie se non esiste già
+            if 'reviews_data' not in session:
+                session['reviews_data'] = []
             return redirect(url_for('index'))
     return '''
     <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
@@ -51,97 +30,78 @@ def login():
         </form>
     </div>
     '''
+
+# 1. Homepage principale
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# 3. Rotta per la Ricerca (Corretta per supportare sia POST che GET)
+# 2. Rotta per la Ricerca (Cerca dentro la lista salvata nei cookie)
 @app.route('/cerca', methods=['GET', 'POST'])
 def cerca():
     if request.method == 'POST':
         site_url = request.form.get('site_url', '').strip()
     else:
-        site_url = request.args.get('url', '').strip()
+        site_url = request.args.get('url', '') or request.args.get('site_url', '')
+        site_url = site_url.strip()
 
     if not site_url:
         return redirect(url_for('index'))
-    conn = get_db_connection()
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
 
-    # Cerchiamo se ci sono recensioni per questo URL
-    cursor.execute('SELECT * FROM reviews WHERE site_url = ?', (site_url,))
-    recensioni_trovate = cursor.fetchall()
-    conn.close()
+    # Recuperiamo tutte le recensioni salvate nei cookie (se non ci sono, usiamo una lista vuota)
+    tutte_le_recensioni = session.get('reviews_data', [])
+    
+    # Filtriamo solo le recensioni che corrispondono all'URL cercato
+    recensioni_trovate = []
+    for r in tutte_le_recensioni:
+        if r.get('site_url') == site_url:
+            # Creiamo una tupla (autore, commento, voto, foto) per passarla al tuo vecchio template risultati.html senza romperlo
+            recensioni_trovate.append((r['autore'], r['comment'], r['rating'], r.get('foto_recensione')))
 
-    if recensioni_trovate:
-        total_reviews = len(recensioni_trovate)
-        star_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
-        total_stars = 0
+    return render_template('risultati.html', url_cercato=site_url, recensioni=recensioni_trovate)
 
-        for r in recensioni_trovate:
-            try:
-                rating = int(r['rating']) if r['rating'] is not None else 0
-            except Exception:
-                rating = 0
-            if rating in star_counts:
-                star_counts[rating] += 1
-                total_stars += rating
-
-        avg_rating = round(total_stars / total_reviews, 1) if total_reviews > 0 else 0
-        star_percentages = {s: (star_counts[s] / total_reviews * 100) if total_reviews > 0 else 0 for s in star_counts}
-
-        return render_template(
-            'risultati.html',
-            url=site_url,
-            recensioni=recensioni_trovate,
-            avg_rating=avg_rating,
-            star_counts=star_counts,
-            star_percentages=star_percentages,
-            total_reviews=total_reviews
-        )
-    else:
-        return render_template('nuova_recensione.html', url=site_url)
-
-# 4. Rotta per l'aggiunta di una recensione (con foto opzionale)
+# 3. Rotta per l'aggiunta di una recensione (Salva dentro i cookie)
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
     autore = session.get('username', 'Anonimo')
-    # Support both field names used in templates: 'site_url' and legacy 'url_sito'
-    site_url = request.form.get('site_url') or request.form.get('url_sito') or ''
-    site_url = site_url.strip()
+    site_url = request.form.get('site_url', '').strip()
+    # support legacy field name
+    if not site_url:
+        site_url = request.form.get('url_sito', '').strip()
     comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
-    file_foto = request.files.get('foto')
     
-    nome_file_salvato = None
-    if file_foto and file_foto.filename != '':
-        nome_file_salvato = f"{autore}_{file_foto.filename}"
-        # Salviamo la foto solo se non siamo su Vercel (perché Vercel blocca la scrittura di file locali)
-        if not os.environ.get('VERCEL') and not os.environ.get('NOW_REGION'):
-            os.makedirs('static/uploads', exist_ok=True)
-            file_foto.save(os.path.join('static/uploads', nome_file_salvato))
-        else:
-            # Segnaposto standard per evitare bug su Vercel
-            nome_file_salvato = "placeholder.png"
-        
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO reviews (autore, site_url, comment, rating, foto_recensione) VALUES (?, ?, ?, ?, ?)',
-                   (autore, site_url, comment, rating, nome_file_salvato))
-    conn.commit()
-    conn.close()
+    # Creiamo il dizionario della nuova recensione
+    nuova_recensione = {
+        'autore': autore,
+        'site_url': site_url,
+        'comment': comment,
+        'rating': rating,
+        'foto_recensione': 'placeholder.png'
+    }
+    
+    # Estraiamo la lista attuale, aggiungiamo la recensione e risalviamo nella sessione
+    recensioni_attuali = session.get('reviews_data', [])
+    recensioni_attuali.append(nuova_recensione)
+    session['reviews_data'] = recensioni_attuali
+    
+    # Diciamo a Flask che la sessione è stata modificata e deve aggiornare il cookie del browser
+    session.modified = True
+    
     return redirect(url_for('index'))
 
-# 5. Profilo utente: Mostra tutte le recensioni dell'utente corrente
+# 4. Profilo utente: Mostra tutte le recensioni scritte dall'utente corrente
 @app.route('/le-mie-recensioni')
 def le_mie_recensioni():
     autore = session.get('username')
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('SELECT site_url, comment, rating, foto_recensione FROM reviews WHERE autore = ?', (autore,))
-    mie_recensioni = cursor.fetchall()
-    conn.close()
+    tutte_le_recensioni = session.get('reviews_data', [])
+    
+    # Filtriamo le recensioni dove l'autore corrisponde all'utente loggato
+    mie_recensioni = []
+    for r in tutte_le_recensioni:
+        if r.get('autore') == autore:
+            mie_recensioni.append((r['site_url'], r['comment'], r['rating'], r.get('foto_recensione')))
+            
     return render_template('le_mie_recensioni.html', recensioni=mie_recensioni, utente=autore)
 
 if __name__ == '__main__':
