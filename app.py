@@ -7,27 +7,28 @@ import traceback
 app = Flask(__name__)
 app.secret_key = 'chiave_semplice_segreta'
 
-def get_db_connection(): 
-    # Use a persistent in-memory DB instance on Vercel (process-lifetime), otherwise use local file
+def get_db_connection():
+    # Se siamo su Vercel, usiamo un database temporaneo in memoria per evitare blocchi di scrittura
     if os.environ.get('VERCEL'):
-        # reuse the same in-memory connection for the process to avoid "table not found" across requests
-        if not app.config.get('VERCEL_DB'):
-            conn = sqlite3.connect(':memory:', check_same_thread=False)
-            cursor = conn.cursor()
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS reviews (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    autore TEXT NOT NULL,
-                    site_url TEXT NOT NULL,
-                    comment TEXT NOT NULL,
-                    rating INTEGER,
-                    foto_recensione TEXT
-                )
-            ''')
-            conn.commit()
-            app.config['VERCEL_DB'] = conn
-        return app.config['VERCEL_DB']
-    return sqlite3.connect('database.db')
+        conn = sqlite3.connect(':memory:', check_same_thread=False)
+    else:
+        # In locale usiamo il classico file fisso
+        conn = sqlite3.connect('database.db')
+        
+    # CREAZIONE DELLE TABELLE SICURA: Viene eseguita SEMPRE a ogni connessione
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            autore TEXT NOT NULL,
+            site_url TEXT NOT NULL,
+            comment TEXT NOT NULL,
+            rating INTEGER,
+            foto_recensione TEXT
+        )
+    ''')
+    conn.commit()
+    return conn
 
 
 # Basic logging configuration
