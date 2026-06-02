@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Allega una foto dimostrativa (Opzionale):</label>
+                        <label>Allega una foto o uno screenshot (Opzionale):</label>
                         <input type="file" id="fotoInput" accept="image/*" class="form-control">
                         <div id="caricamentoStato" style="display:none; margin-top: 8px; font-size: 0.95rem;"></div>
                     </div>
@@ -108,31 +108,42 @@
                     <button type="submit" id="submitBtn" class="btn-submit">Pubblica Recensione</button>
                 </form>
                 <script>
-                    document.getElementById('fotoInput').addEventListener('change', function(p) {
-                        const file = p.target.files[0];
+                    document.getElementById('fotoInput').addEventListener('change', function(e) {
+                        const file = e.target.files[0];
                         const stato = document.getElementById('caricamentoStato');
                         const submitBtn = document.getElementById('submitBtn');
                         const hiddenInput = document.getElementById('fotoBase64');
 
                         if (file) {
+                            // 1. Blocchiamo il pulsante di invio così l'utente aspetta il caricamento completo
                             submitBtn.disabled = true;
-                            submitBtn.style.background = '#aaa';
+                            submitBtn.style.background = '#85929E';
                             submitBtn.innerText = 'Attendi il caricamento della foto...';
+                            
+                            // 2. Mostriamo la scritta di caricamento in corso
                             stato.style.display = 'block';
-                            stato.style.color = '#ffc107';
-                            stato.innerText = '⏳ Caricamento immagine in corso...';
+                            stato.style.color = '#d39e00';
+                            stato.innerText = '⏳ Lettura e ottimizzazione della foto in corso...';
 
                             const reader = new FileReader();
+                            
+                            // Quando il browser finisce di convertire la foto:
                             reader.onloadend = function() {
+                                // Salviamo la foto convertita nel campo nascosto
                                 hiddenInput.value = reader.result;
+                                
+                                // 3. Sblocchiamo il tasto invia e cambiamo il messaggio in verde
                                 submitBtn.disabled = false;
                                 submitBtn.style.background = '#28a745';
                                 submitBtn.innerText = 'Pubblica Recensione';
                                 stato.style.color = '#28a745';
-                                stato.innerText = '✅ Foto caricata con successo e pronta per l\'invio!';
+                                stato.innerText = '✅ Foto caricata con successo! Ora puoi pubblicare.';
                             };
+                            
+                            // Avvia la lettura del file
                             reader.readAsDataURL(file);
                         } else {
+                            // Se l'utente cancella il file selezionato, resetta tutto
                             hiddenInput.value = '';
                             stato.style.display = 'none';
                             submitBtn.disabled = false;
