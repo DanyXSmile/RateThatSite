@@ -58,7 +58,34 @@ def cerca():
         if r.get('site_url') == site_url:
             recensioni_trovate.append((r['autore'], r['comment'], r['rating'], r['foto_recensione']))
 
-    return render_template('risultati.html', url_cercato=site_url, recensioni=recensioni_trovate)
+    # Calcoliamo le statistiche per risultati.html
+    total_reviews = len(recensioni_trovate)
+    star_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    total_stars = 0
+    for _, _, rating, _ in recensioni_trovate:
+        try:
+            value = int(rating)
+        except (TypeError, ValueError):
+            continue
+        if value in star_counts:
+            star_counts[value] += 1
+            total_stars += value
+
+    avg_rating = round(total_stars / total_reviews, 1) if total_reviews else 0
+    star_percentages = {
+        star: round((count / total_reviews) * 100, 1) if total_reviews else 0
+        for star, count in star_counts.items()
+    }
+
+    return render_template(
+        'risultati.html',
+        url=site_url,
+        recensioni=recensioni_trovate,
+        avg_rating=avg_rating,
+        total_reviews=total_reviews,
+        star_counts=star_counts,
+        star_percentages=star_percentages
+    )
 
 # 3. Rotta per l'aggiunta di una recensione (Salva dentro i cookie)
 @app.route('/aggiungi_recensione', methods=['POST'])
