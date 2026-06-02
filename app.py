@@ -1,29 +1,47 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 import os
+import logging
+import traceback
 
 app = Flask(__name__)
 app.secret_key = 'chiave_semplice_segreta'
 
 def get_db_connection(): 
-    # Use an in-memory DB on Vercel (read-only filesystem), otherwise use local file
+    # Use a persistent in-memory DB instance on Vercel (process-lifetime), otherwise use local file
     if os.environ.get('VERCEL'):
-        conn = sqlite3.connect(':memory:', check_same_thread=False)
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS reviews (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                autore TEXT NOT NULL,
-                site_url TEXT NOT NULL,
-                comment TEXT NOT NULL,
-                rating INTEGER,
-                foto_recensione TEXT
-            )
-        ''')
-        conn.commit()
-        return conn
-    else:
-        return sqlite3.connect('database.db')
+        # reuse the same in-memory connection for the process to avoid "table not found" across requests
+        if not app.config.get('VERCEL_DB'):
+            conn = sqlite3.connect(':memory:', check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS reviews (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    autore TEXT NOT NULL,
+                    site_url TEXT NOT NULL,
+                    comment TEXT NOT NULL,
+                    rating INTEGER,
+                    foto_recensione TEXT
+                )
+            ''')
+            conn.commit()
+            app.config['VERCEL_DB'] = conn
+        return app.config['VERCEL_DB']
+    return sqlite3.connect('database.db')
+
+
+# Basic logging configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log full traceback to stdout (visible on Vercel logs)
+    tb = traceback.format_exc()
+    logger.error('Unhandled Exception: %s\n%s', e, tb)
+    # Return a minimal response to the client
+    return "Internal Server Error (check logs)", 500
 
 @app.before_request
 def richiedi_nome():
