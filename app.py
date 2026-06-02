@@ -1,21 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 import os
-import logging
-import traceback
+from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
-app.secret_key = 'chiave_semplice_segreta'
+# Usiamo una chiave fissa e sicura per evitare che la sessione scada a caso su Vercel
+app.secret_key = 'chiave_segreta_assoluta_rate_that_site'
 
 def get_db_connection():
-    # Se siamo su Vercel, usiamo un database temporaneo in memoria per evitare blocchi di scrittura
-    if os.environ.get('VERCEL'):
+    # Se siamo online su Vercel, forziamo il database in memoria
+    if os.environ.get('VERCEL') or os.environ.get('NOW_REGION'):
         conn = sqlite3.connect(':memory:', check_same_thread=False)
     else:
-        # In locale usiamo il classico file fisso
-        conn = sqlite3.connect('database.db')
-        
-    # CREAZIONE DELLE TABELLE SICURA: Viene eseguita SEMPRE a ogni connessione
+        # In locale creiamo il file fisico pulito
+        conn = sqlite3.connect('database.db', check_same_thread=False)
+    
+    # Assicuriamo che la tabella esista SEMPRE prima di restituire la connessione
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reviews (
@@ -30,20 +29,7 @@ def get_db_connection():
     conn.commit()
     return conn
 
-
-# Basic logging configuration
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # Log full traceback to stdout (visible on Vercel logs)
-    tb = traceback.format_exc()
-    logger.error('Unhandled Exception: %s\n%s', e, tb)
-    # Return a minimal response to the client
-    return "Internal Server Error (check logs)", 500
-
+# 1. Controllo di sicurezza: se l'utente non ha un nome registrato nei cookie, lo mandiamo al login
 @app.before_request
 def richiedi_nome():
     if 'username' not in session and request.endpoint not in ['login', 'static']:
@@ -66,11 +52,12 @@ def login():
     </div>
     '''
 
+# 2. Homepage principale
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# 2. MOTORE DI RICERCA
+# 3. Rotta per la Ricerca (Corretta per supportare sia POST che GET)
 @app.route('/cerca', methods=['GET', 'POST'])
 def cerca():
     if request.method == 'POST':
@@ -82,52 +69,52 @@ def cerca():
         return redirect(url_for('index'))
 
     conn = get_db_connection()
-    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+    
+    # Cerchiamo le recensioni per il sito selezionato
     cursor.execute('SELECT autore, comment, rating, foto_recensione FROM reviews WHERE site_url = ?', (site_url,))
     recensioni_trovate = cursor.fetchall()
     conn.close()
-
+    
     return render_template('risultati.html', url_cercato=site_url, recensioni=recensioni_trovate)
 
+# 4. Rotta per l'aggiunta di una recensione (con foto opzionale)
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
-    autore = session.get('username')
-    site_url = request.form.get('url_sito')
-    comment = request.form.get('comment')
+    autore = session.get('username', 'Anonimo')
+    site_url = request.form.get('site_url', '').strip()
+    comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
     file_foto = request.files.get('foto')
-
+    
     nome_file_salvato = None
     if file_foto and file_foto.filename != '':
         nome_file_salvato = f"{autore}_{file_foto.filename}"
-        if not os.environ.get('VERCEL'):
+        # Salviamo la foto solo se non siamo su Vercel (perché Vercel blocca la scrittura di file locali)
+        if not os.environ.get('VERCEL') and not os.environ.get('NOW_REGION'):
             os.makedirs('static/uploads', exist_ok=True)
             file_foto.save(os.path.join('static/uploads', nome_file_salvato))
         else:
-            nome_file_salvato = 'placeholder.png'
-
+            # Segnaposto standard per evitare bug su Vercel
+            nome_file_salvato = "placeholder.png"
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        'INSERT INTO reviews (autore, site_url, comment, rating, foto_recensione) VALUES (?, ?, ?, ?, ?)',
-        (autore, site_url, comment, rating, nome_file_salvato)
-    )
+    cursor.execute('INSERT INTO reviews (autore, site_url, comment, rating, foto_recensione) VALUES (?, ?, ?, ?, ?)',
+                   (autore, site_url, comment, rating, nome_file_salvato))
     conn.commit()
     conn.close()
-
     return redirect(url_for('index'))
 
+# 5. Profilo utente: Mostra tutte le recensioni dell'utente corrente
 @app.route('/le-mie-recensioni')
 def le_mie_recensioni():
     autore = session.get('username')
-    connessione = get_db_connection()
-    connessione.row_factory = sqlite3.Row
-    cursore = connessione.cursor()
-    cursore.execute('SELECT site_url, comment, rating, foto_recensione FROM reviews WHERE autore = ?', (autore,))
-    mie_recensioni = cursore.fetchall()
-    connessione.close()
-
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT site_url, comment, rating, foto_recensione FROM reviews WHERE autore = ?', (autore,))
+    mie_recensioni = cursor.fetchall()
+    conn.close()
     return render_template('le_mie_recensioni.html', recensioni=mie_recensioni, utente=autore)
 
 if __name__ == '__main__':
