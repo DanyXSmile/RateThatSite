@@ -83,12 +83,14 @@ def cerca():
 
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
-    autore = session.get('username', 'Anonimo')
+    # Se la sessione è saltata o l'utente non è loggato, reindirizza esplicitamente al login
+    if 'username' not in session:
+        return redirect(url_for('login'))
+        
+    autore = session['username']
     site_url = request.form.get('site_url', '').strip()
     comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
-    
-    # Recuperiamo l'immagine convertita in stringa base64 da JavaScript
     foto_base64 = request.form.get('foto_base64', '')
 
     nuova_recensione = {
@@ -96,7 +98,7 @@ def aggiungi_recensione():
         'site_url': site_url,
         'comment': comment,
         'rating': int(rating),
-        'foto_recensione': foto_base64 # Se vuota non mostrerà nulla, altrimenti caricherà la foto reale
+        'foto_recensione': foto_base64
     }
     
     recensioni_attuali = session.get('reviews_data', [])

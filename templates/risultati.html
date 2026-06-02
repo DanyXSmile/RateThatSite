@@ -120,7 +120,7 @@
                             submitBtn.innerText = 'Ottimizzazione immagine...';
                             stato.style.display = 'block';
                             stato.style.color = '#d39e00';
-                            stato.innerText = '⏳ Compressione e ottimizzazione della foto in corso...';
+                            stato.innerText = '⏳ Ottimizzazione e riduzione peso immagine in corso...';
 
                             const reader = new FileReader();
                             reader.onload = function(event) {
@@ -130,7 +130,8 @@
                                     let width = img.width;
                                     let height = img.height;
 
-                                    const max_size = 600;
+                                    // Riduciamo la dimensione massima a 300px per farla rientrare tassativamente nei limiti di Flask
+                                    const max_size = 300;
                                     if (width > max_size) {
                                         height *= max_size / width;
                                         width = max_size;
@@ -141,14 +142,15 @@
                                     const ctx = canvas.getContext('2d');
                                     ctx.drawImage(img, 0, 0, width, height);
 
-                                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                                    // Applichiamo una compressione JPEG aggressiva (qualità 0.4) per renderla ultra-leggera
+                                    const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
                                     hiddenInput.value = dataUrl;
 
                                     submitBtn.disabled = false;
                                     submitBtn.style.background = '#28a745';
                                     submitBtn.innerText = 'Pubblica Recensione';
                                     stato.style.color = '#28a745';
-                                    stato.innerText = '✅ Foto ottimizzata e pronta per il caricamento sicuro!';
+                                    stato.innerText = '✅ Foto allegata con successo (formato leggero)!';
                                 };
                                 img.src = event.target.result;
                             };
