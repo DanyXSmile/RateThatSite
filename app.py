@@ -9,9 +9,15 @@ def home():
     return render_template('index.html')
 
 # 2. MOTORE DI RICERCA
-@app.route('/cerca', methods=['POST'])
+@app.route('/cerca', methods=['GET', 'POST'])
 def cerca():
-    url_cercato = request.form.get('url_sito')
+    if request.method == 'POST':
+        url_cercato = request.form.get('url_sito') or request.form.get('url')
+    else:
+        url_cercato = request.args.get('url')
+
+    if not url_cercato:
+        return redirect('/')
     
     connessione = sqlite3.connect('database.db')
     connessione.row_factory = sqlite3.Row
