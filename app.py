@@ -5,6 +5,26 @@ import os
 app = Flask(__name__)
 app.secret_key = 'chiave_semplice_segreta'
 
+def get_db_connection(): 
+    # Use an in-memory DB on Vercel (read-only filesystem), otherwise use local file
+    if os.environ.get('VERCEL'):
+        conn = sqlite3.connect(':memory:', check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                autore TEXT NOT NULL,
+                site_url TEXT NOT NULL,
+                comment TEXT NOT NULL,
+                rating INTEGER,
+                foto_recensione TEXT
+            )
+        ''')
+        conn.commit()
+        return conn
+    else:
+        return sqlite3.connect('database.db')
+
 @app.before_request
 def richiedi_nome():
     if 'username' not in session and request.endpoint not in ['login', 'static']:
@@ -42,7 +62,8 @@ def cerca():
     if not site_url:
         return redirect(url_for('index'))
 
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute('SELECT autore, comment, rating, foto_recensione FROM reviews WHERE site_url = ?', (site_url,))
     recensioni_trovate = cursor.fetchall()
@@ -60,25 +81,28 @@ def aggiungi_recensione():
 
     nome_file_salvato = None
     if file_foto and file_foto.filename != '':
-        os.makedirs('static/uploads', exist_ok=True)
         nome_file_salvato = f"{autore}_{file_foto.filename}"
-        file_foto.save(os.path.join('static/uploads', nome_file_salvato))
+        if not os.environ.get('VERCEL'):
+            os.makedirs('static/uploads', exist_ok=True)
+            file_foto.save(os.path.join('static/uploads', nome_file_salvato))
+        else:
+            nome_file_salvato = 'placeholder.png'
 
-    connessione = sqlite3.connect('database.db')
-    cursore = connessione.cursor()
-    cursore.execute(
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
         'INSERT INTO reviews (autore, site_url, comment, rating, foto_recensione) VALUES (?, ?, ?, ?, ?)',
         (autore, site_url, comment, rating, nome_file_salvato)
     )
-    connessione.commit()
-    connessione.close()
+    conn.commit()
+    conn.close()
 
     return redirect(url_for('index'))
 
 @app.route('/le-mie-recensioni')
 def le_mie_recensioni():
     autore = session.get('username')
-    connessione = sqlite3.connect('database.db')
+    connessione = get_db_connection()
     connessione.row_factory = sqlite3.Row
     cursore = connessione.cursor()
     cursore.execute('SELECT site_url, comment, rating, foto_recensione FROM reviews WHERE autore = ?', (autore,))
