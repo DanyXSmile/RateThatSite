@@ -86,16 +86,15 @@ def aggiungi_recensione():
     comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
     
-    # Gestione opzione foto (fittizia per Vercel: se inserita usiamo un'immagine demo standard)
-    ha_foto = request.form.get('ha_foto')
-    foto_url = "https://images.unsplash.com/photo-1546074177-ffebd98d5574?w=150" if ha_foto == "si" else ""
+    # Recuperiamo l'immagine convertita in stringa base64 da JavaScript
+    foto_base64 = request.form.get('foto_base64', '')
 
     nuova_recensione = {
         'autore': autore,
         'site_url': site_url,
         'comment': comment,
         'rating': int(rating),
-        'foto_recensione': foto_url
+        'foto_recensione': foto_base64 # Se vuota non mostrerà nulla, altrimenti caricherà la foto reale
     }
     
     recensioni_attuali = session.get('reviews_data', [])
