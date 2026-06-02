@@ -14,6 +14,7 @@ def cerca():
     url_cercato = request.form.get('url_sito')
     
     connessione = sqlite3.connect('database.db')
+    connessione.row_factory = sqlite3.Row
     cursore = connessione.cursor()
     
     # Cerchiamo se ci sono recensioni per questo URL
@@ -22,10 +23,35 @@ def cerca():
     connessione.close()
     
     if len(recensioni_trovate) > 0:
-        # Se ci sono recensioni, carichiamo la pagina dei risultati passandogli i dati
-        return render_template('risultati.html', url=url_cercato, recensioni=recensioni_trovate)
+        total_reviews = len(recensioni_trovate)
+        star_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+        total_stars = 0
+
+        for r in recensioni_trovate:
+            voto = int(r['voto'])
+            if voto in star_counts:
+                star_counts[voto] += 1
+                total_stars += voto
+
+        avg_rating = round(total_stars / total_reviews, 1) if total_reviews > 0 else 0
+        star_percentages = {
+            5: (star_counts[5] / total_reviews * 100) if total_reviews > 0 else 0,
+            4: (star_counts[4] / total_reviews * 100) if total_reviews > 0 else 0,
+            3: (star_counts[3] / total_reviews * 100) if total_reviews > 0 else 0,
+            2: (star_counts[2] / total_reviews * 100) if total_reviews > 0 else 0,
+            1: (star_counts[1] / total_reviews * 100) if total_reviews > 0 else 0,
+        }
+
+        return render_template(
+            'risultati.html', 
+            url=url_cercato, 
+            recensioni=recensioni_trovate,
+            avg_rating=avg_rating,
+            star_counts=star_counts,
+            star_percentages=star_percentages,
+            total_reviews=total_reviews
+        )
     else:
-        # Se non ci sono, mostriamo il form per aggiungerne una
         return render_template('nuova_recensione.html', url=url_cercato)
 
 # 3. SALVATAGGIO DATI DAL FORM

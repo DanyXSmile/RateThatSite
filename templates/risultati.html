@@ -3,25 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <title>Recensioni per {{ url }}</title>
+    <style>
+        .risultati-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .colonna-recensioni {
+            flex: 2;
+        }
+        .box-statistiche-trust {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 20px;
+        }
+        .media-valutazione {
+            text-align: center;
+            border-bottom: 1px solid #ececec;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .numero-media {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            display: block;
+        }
+        .riga-barra {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .etichetta-stella { width: 30px; text-align: right; font-weight: 500; }
+        .conteggio-voti { width: 30px; color: #777; font-size: 0.8rem; }
+        .sfondo-barra-progress {
+            flex: 1;
+            height: 12px;
+            background: #eeeeee;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .riempimento-barra-progress {
+            height: 100%;
+            background: #00b67a;
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+    </style>
 </head>
 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f7f6;">
 
     <h1>Recensioni per: <span style="color: #007BFF;">{{ url }}</span></h1>
     <p style="margin-bottom: 30px;"><a href="/" style="color: #007BFF; text-decoration: none;">← Torna alla Home</a></p>
-    
-    <div style="max-width: 600px; margin: 0 auto; text-align: left;">
-        {% for r in recensioni %}
-        <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px #ccc;">
-            <strong>{{ r[2] }}</strong> ha dato un voto di: {{ r[4] }}/5 ⭐️
-            <p style="margin-top: 8px; color: #555; font-style: italic;">"{{ r[3] }}"</p>
+
+    <div class="risultati-layout">
+
+        <div class="colonna-recensioni">
+            <h2>Recensioni degli utenti</h2>
+            {% for r in recensioni %}
+            <div style="background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px #ccc;">
+                <strong>{{ r['autore'] }}</strong> ha dato un voto di: {{ r['voto'] }}/5 ⭐️
+                <p style="margin-top: 8px; color: #555; font-style: italic;">"{{ r['testo_recensione'] }}"</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        <div class="box-statistiche-trust">
+            <h3>Riepilogo Valutazioni</h3>
+            <div class="media-valutazione">
+                <span class="numero-media">{{ avg_rating }}</span>
+                <span class="stelle-intere">su 5 stelle</span>
+                <p class="totale-voti">Su un totale di {{ total_reviews }} recensioni</p>
+            </div>
+            <div class="barre-distribuzione">
+                {% for stella in [5, 4, 3, 2, 1] %}
+                <div class="riga-barra">
+                    <span class="etichetta-stella">{{ stella }} ★</span>
+                    <div class="sfondo-barra-progress">
+                        <div class="riempimento-barra-progress" style="width: {{ star_percentages[stella] }}%;"></div>
+                    </div>
+                    <span class="conteggio-voti">({{ star_counts[stella] }})</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
     
     <div style="margin-top: 40px;">
-        <form action="/cerca" method="POST">
-            <input type="hidden" name="url_sito" value="{{ url }}">
-            </form>
         <p><a href="/" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Scrivi un'altra recensione</a></p>
     </div>
 

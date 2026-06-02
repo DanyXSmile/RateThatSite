@@ -98,6 +98,48 @@
             font-size: 45px;
             margin-bottom: 15px;
         }
+        .carousel-container {
+            overflow: hidden;
+            width: 100%;
+            margin: 40px 0;
+            padding: 15px 0;
+            position: relative;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+            /* Cambia i secondi (es. 40s) per farlo andare più lento o più veloce */
+            animation: scrollInfinite 30s linear infinite;
+        }
+        .carousel-track:hover {
+            animation-play-state: paused;
+        }
+        @keyframes scrollInfinite {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .review-card {
+            width: 260px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-url { font-weight: bold; color: #007bff; font-size: 0.95rem; }
+        .card-user { font-size: 0.85rem; color: #666; }
+        .card-stars { color: #ffc107; font-size: 0.9rem; }
+        .card-comment { font-size: 0.85rem; font-style: italic; margin: 5px 0 0 0; }
     </style>
 </head>
 <body>
@@ -129,6 +171,35 @@
             <div class="icon">✍️</div>
             <h3>Aggiungi Recensione</h3>
             <p>Se non c'è, sii il primo a recensirlo e aiuta la community!</p>
+        </div>
+    </div>
+
+    <div class="carousel-container">
+        <div class="carousel-track">
+            <a href="/cerca?url=https://www.google.com" class="review-card">
+                <span class="card-url">google.com</span>
+                <span class="card-user">Daniele</span>
+                <span class="card-stars">⭐️⭐️⭐️⭐️⭐️</span>
+                <p class="card-comment">"Motore di ricerca perfetto, velocissimo!"</p>
+            </a>
+            <a href="/cerca?url=https://www.amazon.it" class="review-card">
+                <span class="card-url">amazon.it</span>
+                <span class="card-user">Marco</span>
+                <span class="card-stars">⭐️⭐️⭐️⭐️⭐️</span>
+                <p class="card-comment">"Spedizioni lampo, ottima assistenza clienti."</p>
+            </a>
+            <a href="/cerca?url=https://www.google.com" class="review-card">
+                <span class="card-url">google.com</span>
+                <span class="card-user">Daniele</span>
+                <span class="card-stars">⭐️⭐️⭐️⭐️⭐️</span>
+                <p class="card-comment">"Motore di ricerca perfetto, velocissimo!"</p>
+            </a>
+            <a href="/cerca?url=https://www.amazon.it" class="review-card">
+                <span class="card-url">amazon.it</span>
+                <span class="card-user">Marco</span>
+                <span class="card-stars">⭐️⭐️⭐️⭐️⭐️</span>
+                <p class="card-comment">"Spedizioni lampo, ottima assistenza clienti."</p>
+            </a>
         </div>
     </div>
 
