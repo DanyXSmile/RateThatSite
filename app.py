@@ -39,6 +39,7 @@ def index():
 # 2. Rotta per la Ricerca (Cerca dentro la lista salvata nei cookie)
 @app.route('/cerca', methods=['GET', 'POST'])
 def cerca():
+    # Legge l'URL sia se arriva da un form POST (tasto Cerca), sia da argomenti GET
     if request.method == 'POST':
         site_url = request.form.get('site_url', '').strip()
     else:
@@ -48,15 +49,14 @@ def cerca():
     if not site_url:
         return redirect(url_for('index'))
 
-    # Recuperiamo tutte le recensioni salvate nei cookie (se non ci sono, usiamo una lista vuota)
+    # Recuperiamo tutte le recensioni salvate nei cookie (se vuota, usa [])
     tutte_le_recensioni = session.get('reviews_data', [])
     
     # Filtriamo solo le recensioni che corrispondono all'URL cercato
     recensioni_trovate = []
     for r in tutte_le_recensioni:
         if r.get('site_url') == site_url:
-            # Creiamo una tupla (autore, commento, voto, foto) per passarla al tuo vecchio template risultati.html senza romperlo
-            recensioni_trovate.append((r['autore'], r['comment'], r['rating'], r.get('foto_recensione')))
+            recensioni_trovate.append((r['autore'], r['comment'], r['rating'], r['foto_recensione']))
 
     return render_template('risultati.html', url_cercato=site_url, recensioni=recensioni_trovate)
 
