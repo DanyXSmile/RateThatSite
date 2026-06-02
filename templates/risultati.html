@@ -2,99 +2,137 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Risultati Ricerca - RateThatSite</title>
+    <title>Recensioni per {{ url_cercato }} - RateThatSite</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
-        .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 10px 0; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
+        .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 10px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo-link { text-decoration: none; display: inline-block; }
-        .logo-composite { position: relative; display: inline-flex; align-items: center; width: 270px; height: 60px; }
-        .logo-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .logo-text { position: absolute; left: 60px; top: 8px; font-size: 1.65rem; font-weight: 800; color: #111111; z-index: 2; letter-spacing: -0.8px; }
-        .nav-link { color: #444; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
+        .logo-link { text-decoration: none; display: inline-flex; align-items: center; }
+        .logo-text { font-size: 1.65rem; font-weight: 800; color: #111111; margin-left: 10px; }
+        .nav-link { color: #444; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-left: 20px; }
         .nav-link:hover { color: #007bff; }
         
-        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .url-header { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 25px; }
-        .review-card { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 20px; border-left: 5px solid #007bff; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: flex; gap: 30px; }
+        .left-column { flex: 2; }
+        .right-column { flex: 1; }
         
-        /* Stile del modulo inserimento */
-        .add-review-box { background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 4px solid #ffcc00; margin-top: 30px; }
+        .card { background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 25px; }
+        .url-title { color: #007bff; word-break: break-all; margin-top: 0; }
+        
+        .review-item { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .review-item:last-child { border-bottom: none; }
+        .stars { color: #ffcc00; font-size: 1.2rem; }
+        .review-img { max-width: 120px; border-radius: 8px; margin-top: 10px; display: block; border: 1px solid #ddd; }
+        
+        .summary-box { text-align: center; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 20px; }
+        .big-rating { font-size: 3.5rem; font-weight: 800; margin: 10px 0 0 0; color: #111; }
+        .bar-container { display: flex; align-items: center; margin: 8px 0; font-size: 0.9rem; }
+        .bar-label { width: 50px; text-align: left; }
+        .bar-bg { flex: 1; background: #e9ecef; height: 10px; border-radius: 5px; margin: 0 10px; overflow: hidden; }
+        .bar-fill { background: #ffcc00; height: 100%; border-radius: 5px; }
+        .bar-percent { width: 40px; text-align: right; color: #777; }
+        
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
         .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .btn-submit { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
-        .btn-submit:hover { background: #0056b3; }
-        .back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .btn-submit { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-submit:hover { background: #218838; }
     </style>
 </head>
 <body>
-
     <header class="main-header">
         <div class="header-container">
             <a href="/" class="logo-link">
-                <div class="logo-composite">
-                    <svg class="logo-svg" viewBox="0 0 270 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M28,6 L36,21 L52,21 L39,31 L44,46 L28,36 L12,46 L17,31 L4,21 L20,21 Z" fill="#FFCC00" stroke="#FFB300" stroke-width="2.5" stroke-linejoin="round"/>
-                        <path d="M28,36 Q80,59 255,44" fill="none" stroke="#FFCC00" stroke-width="5" stroke-linecap="round"/>
-                    </svg>
-                    <span class="logo-text">RateThatSite</span>
-                </div>
+                <span class="logo-text">⭐ RateThatSite</span>
             </a>
-            <nav class="nav-menu">
-                <a href="/le-mie-recensioni" class="nav-link" style="margin-right: 20px;">Le mie recensioni</a>
-                <a href="/chi-siamo" class="nav-link">Chi siamo</a>
-            </nav>
+            <div>
+                <a href="/le-mie-recensioni" class="nav-link">Le mie recensioni</a>
+                <a href="/" class="nav-link">Torna alla Home</a>
+            </div>
         </div>
     </header>
 
     <div class="container">
-        <div class="url-header">
-            <h2>Risultati per: <span style="color: #007bff;">{{ url_cercato }}</span></h2>
-        </div>
-        
-        {% if recensioni %}
-            <h3>Recensioni della community:</h3>
-            {% for r in recensioni %}
-            <div class="review-card">
-                <p style="margin: 0 0 8px 0; font-weight: bold; color: #555;">✍️ Autore: {{ r[0] }}</p>
-                <p style="margin: 0 0 10px 0; color: #ffcc00; font-size: 1.1rem;">Voto: {{ r[2] }}/5 ⭐️</p>
-                <p style="margin: 0; line-height: 1.5;"><strong>Commento:</strong> {{ r[1] }}</p>
+        <div class="left-column">
+            <div class="card">
+                <h2 class="url-title">Recensioni per:</h2>
+                <p>{{ url_cercato }}</p>
             </div>
-            {% endfor %}
-        {% else %}
-            <div style="background: #fff8e1; padding: 15px; border-radius: 8px; border-left: 5px solid #ffcc00; color: #b78103;">
-                Nessuna recensione presente per questo sito. Sii il primo a scriverne una qui sotto!
-            </div>
-        {% endif %}
 
-        <div class="add-review-box">
-            <h3>Scrivi una recensione per questo sito</h3>
-            <form action="/aggiungi_recensione" method="POST">
-                <input type="hidden" name="site_url" value="{{ url_cercato }}">
-                
-                <div class="form-group">
-                    <label>Valutazione:</label>
-                    <select name="rating" class="form-control" required>
-                        <option value="5">5 Stelle ⭐️⭐️⭐️⭐️⭐️</option>
-                        <option value="4">4 Stelle ⭐️⭐️⭐️⭐️</option>
-                        <option value="3">3 Stelle ⭐️⭐️⭐️</option>
-                        <option value="2">2 Stelle ⭐️⭐️</option>
-                        <option value="1">1 Stella ⭐️</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Il tuo Commento:</label>
-                    <textarea name="comment" class="form-control" rows="4" placeholder="Cosa ne pensi di questo sito web?" required></textarea>
-                </div>
-                
-                <button type="submit" class="btn-submit">Pubblica Recensione</button>
-            </form>
+            <div class="card">
+                <h3>Recensioni degli utenti</h3>
+                {% if recensioni %}
+                    {% for r in recensioni %}
+                    <div class="review-item">
+                        <p><strong>👤 {{ r.autore }}</strong></p>
+                        <p class="stars">{% for i in range(r.rating|int) %}⭐️{% endfor %} ({{ r.rating }}/5)</p>
+                        <p>{{ r.comment }}</p>
+                        {% if r.foto_recensione %}
+                            <img class="review-img" src="{{ r.foto_recensione }}" alt="Foto allegata">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Nessuna recensione presente per questo sito. Sii il primo!</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>Scrivi un'altra recensione</h3>
+                <form action="/aggiungi_recensione" method="POST">
+                    <input type="hidden" name="site_url" value="{{ url_cercato }}">
+
+                    <div class="form-group">
+                        <label>Valutazione:</label>
+                        <select name="rating" class="form-control" required>
+                            <option value="5">5 Stelle ⭐️⭐️⭐️⭐️⭐️</option>
+                            <option value="4">4 Stelle ⭐️⭐️⭐️⭐️</option>
+                            <option value="3">3 Stelle ⭐️⭐️⭐️</option>
+                            <option value="2">2 Stelle ⭐️⭐️</option>
+                            <option value="1">1 Stella ⭐️</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Il tuo Commento:</label>
+                        <textarea name="comment" class="form-control" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vuoi aggiungere una foto dimostrativa?</label>
+                        <select name="ha_foto" class="form-control">
+                            <option value="no">No, nessuna foto</option>
+                            <option value="si">Sì, allega una foto di esempio</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Pubblica Recensione</button>
+                </form>
+            </div>
         </div>
 
-        <a href="/" class="back-link">← Torna alla Home</a>
+        <div class="right-column">
+            <div class="summary-box">
+                <h3>Riepilogo Valutazioni</h3>
+                <div class="big-rating">{{ media_voto }}</div>
+                <div>
+                    {% if media_voto >= 4.5 %}⭐️⭐️⭐️⭐️⭐️
+                    {% elif media_voto >= 3.5 %}⭐️⭐️⭐️⭐️
+                    {% elif media_voto >= 2.5 %}⭐️⭐️⭐️
+                    {% elif media_voto >= 1.5 %}⭐️⭐️
+                    {% elif media_voto > 0 %}⭐️
+                    {% else %}⭐️⭐️⭐️⭐️⭐️{% endif %}
+                </div>
+                <p>Su un totale di {{ totale_recensioni }} recensioni</p>
+                {% for stella in [5, 4, 3, 2, 1] %}
+                <div class="bar-container">
+                    <div class="bar-label">{{ stella }} ★</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: {{ percentuali[stella] }}%;"></div></div>
+                    <div class="bar-percent">{{ percentuali[stella] }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-
 </body>
 </html>
