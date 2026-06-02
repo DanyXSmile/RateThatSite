@@ -1,11 +1,34 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
+import os
 
 app = Flask(__name__)
+app.secret_key = 'chiave_semplice_segreta'
 
-# 1. HOME PAGE
+@app.before_request
+def richiedi_nome():
+    if 'username' not in session and request.endpoint not in ['login', 'static']:
+        return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        nome = request.form.get('username', '').strip()
+        if nome:
+            session['username'] = nome
+            return redirect(url_for('index'))
+    return '''
+    <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+        <h2>Benvenuto su RateThatSite! ⭐️</h2>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Inserisci il tuo nome" required style="padding:10px; min-width:250px;"><br><br>
+            <button type="submit" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer;">Entra nel sito</button>
+        </form>
+    </div>
+    '''
+
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
 # 2. MOTORE DI RICERCA
@@ -24,7 +47,7 @@ def cerca():
     cursore = connessione.cursor()
     
     # Cerchiamo se ci sono recensioni per questo URL
-    cursore.execute("SELECT * FROM recensioni WHERE url_sito = ?", (url_cercato,))
+    cursore.execute("SELECT * FROM reviews WHERE site_url = ?", (url_cercato,))
     recensioni_trovate = cursore.fetchall()
     connessione.close()
     
@@ -34,10 +57,10 @@ def cerca():
         total_stars = 0
 
         for r in recensioni_trovate:
-            voto = int(r['voto'])
-            if voto in star_counts:
-                star_counts[voto] += 1
-                total_stars += voto
+            rating = int(r['rating']) if r['rating'] is not None else 0
+            if rating in star_counts:
+                star_counts[rating] += 1
+                total_stars += rating
 
         avg_rating = round(total_stars / total_reviews, 1) if total_reviews > 0 else 0
         star_percentages = {
@@ -60,30 +83,42 @@ def cerca():
     else:
         return render_template('nuova_recensione.html', url=url_cercato)
 
-# 3. SALVATAGGIO DATI DAL FORM
-@app.route('/salva_recensione', methods=['POST'])
-def salva_recensione():
-    # Recuperiamo i dati inviati dal form di nuova_recensione.html
-    url = request.form.get('url_sito')
-    autore = request.form.get('autore')
-    testo = request.form.get('testo_recensione')
-    voto = request.form.get('voto')
-    
-    # Ci colleghiamo al database per inserire il nuovo record
+@app.route('/aggiungi_recensione', methods=['POST'])
+def aggiungi_recensione():
+    autore = session.get('username')
+    site_url = request.form.get('url_sito')
+    comment = request.form.get('comment')
+    rating = request.form.get('rating')
+    file_foto = request.files.get('foto')
+
+    nome_file_salvato = None
+    if file_foto and file_foto.filename != '':
+        os.makedirs('static/uploads', exist_ok=True)
+        nome_file_salvato = f"{autore}_{file_foto.filename}"
+        file_foto.save(os.path.join('static/uploads', nome_file_salvato))
+
     connessione = sqlite3.connect('database.db')
     cursore = connessione.cursor()
-    
-    # Comando SQL per inserire i dati nei 5 campi significativi
-    cursore.execute('''
-        INSERT INTO recensioni (url_sito, autore, testo_recensione, voto)
-        VALUES (?, ?, ?, ?)
-    ''', (url, autore, testo, voto))
-    
-    connessione.commit() # Salva definitivamente i dati nel file .db
+    cursore.execute(
+        'INSERT INTO reviews (autore, site_url, comment, rating, foto_recensione) VALUES (?, ?, ?, ?, ?)',
+        (autore, site_url, comment, rating, nome_file_salvato)
+    )
+    connessione.commit()
     connessione.close()
-    
-    # Messaggio di successo temporaneo che rimanda alla home
-    return f"<h1>Recensione salvata con successo per {url}!</h1><p><a href='/'>Torna alla Home per cercarlo di nuovo</a></p>"
+
+    return redirect(url_for('index'))
+
+@app.route('/le-mie-recensioni')
+def le_mie_recensioni():
+    autore = session.get('username')
+    connessione = sqlite3.connect('database.db')
+    connessione.row_factory = sqlite3.Row
+    cursore = connessione.cursor()
+    cursore.execute('SELECT site_url, comment, rating, foto_recensione FROM reviews WHERE autore = ?', (autore,))
+    mie_recensioni = cursore.fetchall()
+    connessione.close()
+
+    return render_template('le_mie_recensioni.html', recensioni=mie_recensioni, utente=autore)
 
 if __name__ == '__main__':
     app.run(debug=True)

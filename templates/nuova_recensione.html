@@ -9,16 +9,18 @@
     <h2>Nessuna recensione trovata per: <span style="color: #007BFF;">{{ url }}</span></h2>
     <p>Sii il primo a recensire questo sito!</p>
 
-    <form action="/salva_recensione" method="POST" style="background: white; padding: 20px; width: 300px; margin: 0 auto; border-radius: 10px; box-shadow: 0px 0px 10px #ccc;">
-        
+    <form action="/aggiungi_recensione" method="POST" enctype="multipart/form-data" style="background: white; padding: 20px; width: 320px; margin: 0 auto; border-radius: 10px; box-shadow: 0px 0px 10px #ccc;">
         <input type="hidden" name="url_sito" value="{{ url }}">
 
-        <input type="text" name="autore" placeholder="Il tuo nome" required style="width: 90%; padding: 10px; margin-bottom: 10px;"><br>
+        <p style="margin-bottom: 10px; font-size: 0.95rem; color: #333;">Stai recensendo come: <strong>{{ session['username'] }}</strong></p>
 
-        <textarea name="testo_recensione" placeholder="Scrivi qui la tua recensione..." required rows="5" style="width: 90%; padding: 10px; margin-bottom: 10px;"></textarea><br>
+        <textarea name="comment" placeholder="Scrivi qui la tua recensione..." required rows="5" style="width: 90%; padding: 10px; margin-bottom: 10px;"></textarea><br>
+
+        <label>Carica una foto (opzionale):</label><br>
+        <input type="file" name="foto" accept="image/*" style="width: 90%; margin-bottom: 10px;"><br>
 
         <label>Voto:</label><br>
-        <select name="voto" style="width: 95%; padding: 10px; margin-bottom: 15px;">
+        <select name="rating" style="width: 95%; padding: 10px; margin-bottom: 15px;">
             <option value="5">5 Stelle (Ottimo) ⭐️⭐️⭐️⭐️⭐️</option>
             <option value="4">4 Stelle (Buono) ⭐️⭐️⭐️⭐️</option>
             <option value="3">3 Stelle (Sufficiente) ⭐️⭐️⭐️</option>

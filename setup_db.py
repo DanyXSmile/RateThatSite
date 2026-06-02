@@ -1,24 +1,23 @@
 import sqlite3
 
-# Crea (o si collega a) un file chiamato database.db
-connessione = sqlite3.connect('database.db')
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
 
-# Il cursore serve per eseguire i comandi SQL
-cursore = connessione.cursor()
+    # Tabella recensioni semplificata
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            autore TEXT NOT NULL,
+            site_url TEXT NOT NULL,
+            comment TEXT NOT NULL,
+            rating INTEGER,
+            foto_recensione TEXT
+        )
+    ''')
 
-# Scriviamo il comando SQL per creare la tabella
-cursore.execute('''
-    CREATE TABLE IF NOT EXISTS recensioni (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        url_sito TEXT NOT NULL,
-        autore TEXT NOT NULL,
-        testo_recensione TEXT NOT NULL,
-        voto INTEGER NOT NULL
-    )
-''')
+    conn.commit()
+    conn.close()
 
-# Salviamo le modifiche e chiudiamo la connessione
-connessione.commit()
-connessione.close()
-
-print("Database e tabella creati con successo!")
+if __name__ == '__main__':
+    init_db()
