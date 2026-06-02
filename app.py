@@ -44,15 +44,41 @@ def login():
             return redirect(url_for('index'))
     return '''
     <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
-        <h2>Benvenuto su RateThatSite! ⭐️</h2>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Inserisci il tuo nome" required style="padding:10px; min-width:250px;"><br><br>
-            <button type="submit" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer;">Entra nel sito</button>
-        </form>
-    </div>
-    '''
+    conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM reviews WHERE site_url = ?', (site_url,))
+    recensioni_trovate = cursor.fetchall()
+    conn.close()
 
-# 2. Homepage principale
+    if recensioni_trovate:
+        total_reviews = len(recensioni_trovate)
+        star_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+        total_stars = 0
+
+        for r in recensioni_trovate:
+            try:
+                rating = int(r['rating']) if r['rating'] is not None else 0
+            except Exception:
+                rating = 0
+            if rating in star_counts:
+                star_counts[rating] += 1
+                total_stars += rating
+
+        avg_rating = round(total_stars / total_reviews, 1) if total_reviews > 0 else 0
+        star_percentages = {s: (star_counts[s] / total_reviews * 100) if total_reviews > 0 else 0 for s in star_counts}
+
+        return render_template(
+            'risultati.html',
+            url=site_url,
+            recensioni=recensioni_trovate,
+            avg_rating=avg_rating,
+            star_counts=star_counts,
+            star_percentages=star_percentages,
+            total_reviews=total_reviews
+        )
+    else:
+        return render_template('nuova_recensione.html', url=site_url)
 @app.route('/')
 def index():
     return render_template('index.html')
