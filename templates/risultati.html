@@ -69,39 +69,13 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* Spinge il logo a sinistra e i link a destra */
             align-items: center;
-            padding: 0 20px;
+            padding: 10px 20px;
         }
         .logo-link {
             text-decoration: none;
-            display: inline-block;
-        }
-        .logo-composite {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            width: 270px;
-            height: 60px;
-        }
-        .logo-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-        .logo-text {
-            position: absolute;
-            left: 60px;
-            top: 8px;
-            font-size: 1.65rem;
-            font-weight: 800;
-            color: #111111;
-            z-index: 2;
-            letter-spacing: -0.8px;
+            margin-right: auto; /* Forza l'ancoraggio a sinistra */
         }
         .nav-link {
             color: #444;
@@ -120,18 +94,7 @@
 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f7f6;">
 <header class="main-header">
     <div class="header-container">
-        <a href="/" class="logo-link">
-            <div class="logo-composite">
-                <svg class="logo-svg" viewBox="0 0 270 60" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M28,6 L36,21 L52,21 L39,31 L44,46 L28,36 L12,46 L17,31 L4,21 L20,21 Z" 
-                          fill="#FFCC00" stroke="#FFB300" stroke-width="2.5" stroke-linejoin="round"/>
-                    
-                    <path d="M28,36 Q80,59 255,44" 
-                          fill="none" stroke="#FFCC00" stroke-width="5" stroke-linecap="round"/>
-                </svg>
-                <span class="logo-text">RateThatSite</span>
-            </div>
-        </a>
+        <a href="/" class="logo-link">RateThatSite <span class="star-logo">⭐️</span></a>
         
         <nav class="nav-menu">
             <a href="/chi-siamo" class="nav-link">Chi siamo</a>
