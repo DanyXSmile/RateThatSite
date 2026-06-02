@@ -83,7 +83,7 @@ def cerca():
 
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
-    # Se la sessione è saltata o l'utente non è loggato, reindirizza esplicitamente al login
+    # Se per qualunque motivo la sessione si svuota, evitiamo il crash e rimandiamo al login
     if 'username' not in session:
         return redirect(url_for('login'))
         
@@ -91,14 +91,17 @@ def aggiungi_recensione():
     site_url = request.form.get('site_url', '').strip()
     comment = request.form.get('comment', '').strip()
     rating = request.form.get('rating')
-    foto_base64 = request.form.get('foto_base64', '')
+    
+    # Invece di salvare tutto il testo della foto che fa saltare i cookie,
+    # salviamo solo un valore booleano o un testo finto leggerissimo.
+    ha_foto = request.form.get('foto_base64', '') != ''
 
     nuova_recensione = {
         'autore': autore,
         'site_url': site_url,
         'comment': comment,
         'rating': int(rating),
-        'foto_recensione': foto_base64
+        'ha_foto': ha_foto  # Questo occupa pochissimi byte!
     }
     
     recensioni_attuali = session.get('reviews_data', [])

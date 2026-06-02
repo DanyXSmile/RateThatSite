@@ -1,333 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RateThatSite - Recensioni</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif; 
-            background-color: #f4f7f6; 
-            color: #333;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        .header {
-            padding: 60px 20px 20px 20px;
-        }
-        .header h1 {
-            font-size: 3.5em;
-            color: #0056b3;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .header h2 {
-            /* Sottotitolo reso più visibile e scuro */
-            font-weight: 500; 
-            font-size: 1.5em;
-            color: #333; 
-            margin-top: 0;
-        }
-        .search-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            display: inline-block;
-            margin-top: 20px;
-        }
-        .search-box {
-            font-family: 'Poppins', sans-serif;
-            padding: 15px;
-            width: 400px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0; 
-            border-radius: 8px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .search-box:focus {
-            border-color: #007BFF;
-        }
-        .search-btn {
-            font-family: 'Poppins', sans-serif;
-            padding: 15px 30px;
-            font-size: 16px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-left: 10px;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-        .search-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            margin-top: 60px;
-            padding-bottom: 50px;
-        }
-        .feature-box {
-            width: 250px;
-        }
-        .feature-box h3 {
-            color: #0056b3;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .feature-box p {
-            /* Testini piccoli resi in grassetto, più grandi e neri */
-            color: #111; 
-            font-size: 15px; 
-            font-weight: 500; 
-            line-height: 1.6;
-        }
-        .icon {
-            font-size: 45px;
-            margin-bottom: 15px;
-        }
-        .carousel-container {
-            /* Trucco per estendersi al 100% dello schermo anche se dentro un contenitore stretto */
-            width: 100vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-            margin-right: -50vw;
-            
-            overflow: hidden;
-            padding: 25px 0;
-            margin-top: 50px;
-            margin-bottom: 30px;
-            background: rgba(248, 249, 250, 0.7);
-            border-top: 1px solid #e9ecef;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .carousel-track {
-            display: flex;
-            gap: 25px;
-            width: max-content;
-            /* Spostamento lento continuo da destra a sinistra */
-            animation: scorriSinistra 35s linear infinite;
-        }
-        .carousel-track:hover {
-            animation-play-state: paused;
-        }
-        @keyframes scorriSinistra {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .review-card {
-            width: 280px;
-            background: white;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            text-align: left;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
-        }
-        .review-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-        .card-url { font-weight: bold; color: #0056b3; font-size: 1rem; text-transform: lowercase; }
-        .card-user { font-size: 0.85rem; color: #6c757d; }
-        .card-stars { color: #ffc107; font-size: 0.9rem; letter-spacing: 1px; }
-        .card-comment { font-size: 0.88rem; font-style: italic; margin-top: 4px; color: #495057; line-height: 1.3; }
-        /* --- STILE HEADER GENERALE --- */
-        .main-header {
-            background: #ffffff;
-            border-bottom: 1px solid #f0f0f0;
-            padding: 10px 0;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
-        }
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between; /* Spinge il logo a sinistra e i link a destra */
-            align-items: center;
-            padding: 0 20px;
-        }
-        .logo-link { text-decoration: none; display: inline-block; }
-        .logo-composite { position: relative; display: inline-flex; align-items: center; width: 270px; height: 60px; }
-        .logo-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .logo-text { position: absolute; left: 60px; top: 8px; font-size: 1.65rem; font-weight: 800; color: #111111; z-index: 2; letter-spacing: -0.8px; }
-        .nav-link { color: #444; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
-        .nav-link:hover { color: #007bff; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Accedi - RateThatSite</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .brand {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .brand span { color: #ffc107; }
+    .subtitle { color: #666; margin-bottom: 30px; font-size: 0.95rem; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    .btn-login { background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+    .btn-login:hover { background: #218838; }
+  </style>
 </head>
 <body>
-<header class="main-header">
-    <div class="header-container">
-        <a href="/" class="logo-link">
-            <div class="logo-composite">
-                <svg class="logo-svg" viewBox="0 0 270 60" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M28,6 L36,21 L52,21 L39,31 L44,46 L28,36 L12,46 L17,31 L4,21 L20,21 Z" fill="#FFCC00" stroke="#FFB300" stroke-width="2.5" stroke-linejoin="round"/>
-                    <path d="M28,36 Q80,59 255,44" fill="none" stroke="#FFCC00" stroke-width="5" stroke-linecap="round"/>
-                </svg>
-                <span class="logo-text">RateThatSite</span>
-            </div>
-        </a>
-        
-        <nav class="nav-menu">
-            <a href="/le-mie-recensioni" class="nav-link" style="margin-right: 20px;">Le mie recensioni</a>
-            <a href="/chi-siamo" class="nav-link">Chi siamo</a>
-        </nav>
-    </div>
-</header>
-
-    <div class="header">
-        <h1>RateThatSite ⭐️</h1>
-        <h2>Cerca, Leggi e Recensisci Qualsiasi Sito Web</h2>
-    </div>
-    
-    <div class="search-container">
-        <form action="/cerca" method="POST">
-            <input type="url" name="site_url" class="search-box" placeholder="Es. https://www.esempio.it" required>
-            <button type="submit" class="search-btn">Cerca Recensioni</button>
-        </form>
-    </div>
-
-    <div class="features">
-        <div class="feature-box">
-            <div class="icon">🔍</div>
-            <h3>Trova Sito</h3>
-            <p>Cerca un URL nel nostro database in modo facile e veloce.</p>
-        </div>
-        <div class="feature-box">
-            <div class="icon">💬</div>
-            <h3>Leggi Feedback</h3>
-            <p>Scopri cosa dicono gli altri utenti prima di fidarti di un sito.</p>
-        </div>
-        <div class="feature-box">
-            <div class="icon">✍️</div>
-            <h3>Aggiungi Recensione</h3>
-            <p>Se non c'è, sii il primo a recensirlo e aiuta la community!</p>
-        </div>
-    </div>
-
-    <div class="carousel-container">
-        <div class="carousel-track">
-            <a href="/cerca?url=https://www.amazon.it" class="review-card">
-                <span class="card-url">amazon.it</span>
-                <span class="card-user">Marco</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Ottimo per gli acquisti, ma a volte i pacchi arrivano in ritardo."</p>
-            </a>
-            <a href="/cerca?url=https://www.wikipedia.org" class="review-card">
-                <span class="card-url">wikipedia.org</span>
-                <span class="card-user">Sofia</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"La salvezza di ogni studente. Trovi informazioni su qualsiasi cosa!"</p>
-            </a>
-            <a href="/cerca?url=https://www.youtube.com" class="review-card">
-                <span class="card-url">youtube.com</span>
-                <span class="card-user">Luca</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Troppa pubblicità ultimamente, ma i video dei creator sono unici."</p>
-            </a>
-            <a href="/cerca?url=https://www.netflix.com" class="review-card">
-                <span class="card-url">netflix.com</span>
-                <span class="card-user">Giulia</span>
-                <span class="card-stars">⭐⭐⭐</span>
-                <p class="card-comment">"Catalogo un po' ripetitivo e prezzi aumentati troppo spesso."</p>
-            </a>
-            <a href="/cerca?url=https://www.github.com" class="review-card">
-                <span class="card-url">github.com</span>
-                <span class="card-user">Alex</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"La piattaforma migliore per programmare in gruppo e salvare codice."</p>
-            </a>
-            <a href="/cerca?url=https://www.spotify.com" class="review-card">
-                <span class="card-url">spotify.com</span>
-                <span class="card-user">Elena</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Algoritmo fantastico per scoprire musica, ma l'app a volte freeza."</p>
-            </a>
-            <a href="/cerca?url=https://www.google.com" class="review-card">
-                <span class="card-url">google.com</span>
-                <span class="card-user">Davide</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"Il motore di ricerca definitivo. Semplice, fulmineo e accurato."</p>
-            </a>
-            <a href="/cerca?url=https://www.instagram.com" class="review-card">
-                <span class="card-url">instagram.com</span>
-                <span class="card-user">Sara</span>
-                <span class="card-stars">⭐⭐⭐</span>
-                <p class="card-comment">"Pieno di bug nell'ultimo periodo e troppi post sponsorizzati."</p>
-            </a>
-
-            <a href="/cerca?url=https://www.amazon.it" class="review-card">
-                <span class="card-url">amazon.it</span>
-                <span class="card-user">Marco</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Ottimo per gli acquisti, ma a volte i pacchi arrivano in ritardo."</p>
-            </a>
-            <a href="/cerca?url=https://www.wikipedia.org" class="review-card">
-                <span class="card-url">wikipedia.org</span>
-                <span class="card-user">Sofia</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"La salvezza di ogni studente. Trovi informazioni su qualsiasi cosa!"</p>
-            </a>
-            <a href="/cerca?url=https://www.youtube.com" class="review-card">
-                <span class="card-url">youtube.com</span>
-                <span class="card-user">Luca</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Troppa pubblicità ultimamente, ma i video dei creator sono unici."</p>
-            </a>
-            <a href="/cerca?url=https://www.netflix.com" class="review-card">
-                <span class="card-url">netflix.com</span>
-                <span class="card-user">Giulia</span>
-                <span class="card-stars">⭐⭐⭐</span>
-                <p class="card-comment">"Catalogo un po' ripetitivo e prezzi aumentati troppo spesso."</p>
-            </a>
-            <a href="/cerca?url=https://www.github.com" class="review-card">
-                <span class="card-url">github.com</span>
-                <span class="card-user">Alex</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"La piattaforma migliore per programmare in gruppo e salvare codice."</p>
-            </a>
-            <a href="/cerca?url=https://www.spotify.com" class="review-card">
-                <span class="card-url">spotify.com</span>
-                <span class="card-user">Elena</span>
-                <span class="card-stars">⭐⭐⭐⭐</span>
-                <p class="card-comment">"Algoritmo fantastico per scoprire musica, ma l'app a volte freeza."</p>
-            </a>
-            <a href="/cerca?url=https://www.google.com" class="review-card">
-                <span class="card-url">google.com</span>
-                <span class="card-user">Davide</span>
-                <span class="card-stars">⭐⭐⭐⭐⭐</span>
-                <p class="card-comment">"Il motore di ricerca definitivo. Semplice, fulmineo e accurato."</p>
-            </a>
-            <a href="/cerca?url=https://www.instagram.com" class="review-card">
-                <span class="card-url">instagram.com</span>
-                <span class="card-user">Sara</span>
-                <span class="card-stars">⭐⭐⭐</span>
-                <p class="card-comment">"Pieno di bug nell'ultimo periodo e troppi post sponsorizzati."</p>
-            </a>
-
-        </div>
-    </div>
-
+  <div class="login-container">
+    <div class="brand">RateThatSite <span>⭐️</span></div>
+    <div class="subtitle">Benvenuto! Inserisci il tuo nome per entrare nel sito</div>
+    <form method="post" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label>Nome Utente:</label>
+        <input class="form-control" type="text" name="username" required>
+      </div>
+      <button class="btn-login" type="submit">Entra nel Sito</button>
+    </form>
+  </div>
 </body>
 </html>
