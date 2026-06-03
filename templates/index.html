@@ -141,14 +141,53 @@
         .search-btn { background: #0052cc; color: white; border: none; padding: 15px 40px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: background 0.2s; }
         .search-btn:hover { background: #0041a3; }
 
-        /* LINEA ANIMATA IN LOOP (TICKER MARQUEE) */
-        .ticker-container { width: 100%; overflow: hidden; background: #ffffff; border-top: 1px solid #eef2f5; border-bottom: 1px solid #eef2f5; padding: 16px 0; position: fixed; bottom: 80px; left: 0; }
-        .ticker-lane { display: flex; width: max-content; animation: loopScroll 35s linear infinite; }
-        .ticker-lane:hover { animation-play-state: paused; }
-        .ticker-card { padding: 0 35px; border-right: 2px solid #f0f2f5; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+        /* LINEA ANIMATA IN LOOP IN BASSO FIXATA */
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            background: #ffffff;
+            border-top: 1px solid #eef2f5;
+            border-bottom: 1px solid #eef2f5;
+            padding: 16px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 999;
+        }
+
+        .ticker-lane {
+            display: flex;
+            width: max-content;
+            animation: tickerMarquee 30s linear infinite !important;
+        }
+
+        /* Pausa lo scorrimento quando l'utente ci passa sopra col mouse */
+        .ticker-lane:hover {
+            animation-play-state: paused !important;
+        }
+
+        .ticker-card {
+            padding: 0 35px;
+            border-right: 2px solid #f0f2f5;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+
         .ticker-url { font-weight: 700; color: #0052cc; }
         .ticker-stars { color: #ffc107; font-weight: bold; font-size: 1.1rem; }
         .ticker-comment { font-style: italic; color: #555; }
+
+        @keyframes tickerMarquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
 
         .features-section {
             display: flex;

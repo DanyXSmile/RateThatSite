@@ -116,5 +116,20 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+@app.route('/elimina_recensione', methods=['POST'])
+def elimina_recensione():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    site_url = request.form.get('site_url', '').strip()
+    comment = request.form.get('comment', '').strip()
+
+    DB["recensioni"] = [
+        r for r in DB["recensioni"]
+        if not (r['autore'] == session['username'] and r['site_url'] == site_url and r['comment'] == comment)
+    ]
+    
+    return redirect(url_for('le_mie_recensioni'))
+
 if __name__ == '__main__':
     app.run(debug=True)
