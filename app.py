@@ -20,16 +20,7 @@ def login():
             if 'reviews_data' not in session:
                 session['reviews_data'] = []
             return redirect(url_for('index'))
-    return '''
-    
-        Benvenuto su RateThatSite! ⭐️
-        
-            
-
-            Entra nel sito
-        
-    
-    '''
+    return render_template('index.html')
 
 @app.route('/')
 def index():
