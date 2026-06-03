@@ -3,94 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Accedi - RateThatSite</title>
+  <title>Cerca un Sito - RateThatSite</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-container {
-      background: white;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-    .logo {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #1a1a1a;
-      margin-bottom: 5px;
-    }
-    .logo span {
-      color: #ffc107;
-    }
-    .subtitle {
-      color: #6c757d;
-      margin-bottom: 30px;
-      font-size: 1rem;
-    }
-    .form-group {
-      margin-bottom: 22px;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #495057;
-    }
-    .form-control {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #ced4da;
-      border-radius: 10px;
-      box-sizing: border-box;
-      font-size: 1rem;
-      transition: border-color 0.2s;
-    }
-    .form-control:focus {
-      border-color: #28a745;
-      outline: none;
-    }
-    .btn-login {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: bold;
-      width: 100%;
-      cursor: pointer;
-      font-size: 1.05rem;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .btn-login:hover {
-      background: #218838;
-    }
-    .btn-login:active {
-      transform: scale(0.98);
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
+    .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 15px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
+    .header-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .logo-text { font-size: 1.6rem; font-weight: 800; color: #111; text-decoration: none; }
+    .nav-link { color: #007bff; text-decoration: none; font-weight: bold; margin-left: 20px; }
+    .search-container { max-width: 650px; margin: 100px auto; padding: 0 20px; text-align: center; }
+    .main-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: #111; }
+    .search-box { display: flex; gap: 10px; margin-top: 30px; background: white; padding: 8px; border-radius: 50px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .search-input { flex: 1; border: none; padding: 15px 25px; font-size: 1.1rem; border-radius: 50px; outline: none; }
+    .search-btn { background: #007bff; color: white; border: none; padding: 15px 35px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: background 0.2s; }
+    .search-btn:hover { background: #0056b3; }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <div class="logo">RateThatSite <span>⭐️</span></div>
-    <p class="subtitle">Benvenuto! Inserisci il tuo nome per entrare e iniziare a recensire</p>
-    <form method="post" action="/login">
-      <div class="form-group">
-        <label for="username">Il tuo Nome Utente:</label>
-        <input id="username" name="username" class="form-control" type="text" placeholder="Es. Maria123" required>
+  <header class="main-header">
+    <div class="header-container">
+      <a class="logo-text" href="/">⭐ RateThatSite</a>
+      <div>
+        <span>Ciao, <strong>{{ session.get('username', 'Utente') }}</strong>!</span>
+        <a class="nav-link" href="/le-mie-recensioni">Le mie recensioni</a>
       </div>
-      <button type="submit" class="btn-login">Entra nel Sito</button>
+    </div>
+  </header>
+
+  <main class="search-container">
+    <h1 class="main-title">Trova o recensisci un sito web</h1>
+    <p>Inserisci l'URL qui sotto per leggere le opinioni o lasciare la tua valutazione</p>
+    <form method="post" action="/cerca">
+      <div class="search-box">
+        <input class="search-input" type="text" name="site_url" placeholder="https://esempio.com" required>
+        <button class="search-btn" type="submit">Cerca</button>
+      </div>
     </form>
-  </div>
+  </main>
+
 </body>
 </html>

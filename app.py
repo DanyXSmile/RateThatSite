@@ -19,8 +19,9 @@ def login():
             session['username'] = nome
             if 'reviews_data' not in session:
                 session['reviews_data'] = []
+            session.modified = True
             return redirect(url_for('index'))
-    return render_template('index.html')
+    return render_template('login.html')
 
 @app.route('/')
 def index():
