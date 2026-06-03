@@ -4,47 +4,35 @@
     <meta charset="UTF-8">
     <title>Recensioni per {{ url_cercato }} - RateThatSite</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
-        .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 10px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
-        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo-link { text-decoration: none; display: inline-flex; align-items: center; }
-        .logo-text { font-size: 1.65rem; font-weight: 800; color: #111111; margin-left: 10px; }
-        .nav-link { color: #444; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-left: 20px; }
-        .nav-link:hover { color: #007bff; }
-        
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: flex; gap: 30px; }
-        .left-column { flex: 2; }
-        .right-column { flex: 1; }
-        
-        .card { background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 25px; }
-        .url-title { color: #007bff; word-break: break-all; margin-top: 0; }
-        
-        .review-item { border-bottom: 1px solid #eee; padding: 20px 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
+        .main-header { background: #ffffff; border-bottom: 1px solid #eee; padding: 15px 0; }
+        .header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo-text { font-size: 1.5rem; font-weight: 800; color: #111; text-decoration: none; }
+        .nav-link { color: #007bff; text-decoration: none; font-weight: bold; margin-left: 20px; }
+        .nav-link:hover { text-decoration: underline; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 20px; border: 1px solid #eee; }
+        .rating-big { font-size: 3.5rem; font-weight: 800; margin: 0; color: #111; }
+        .bar-container { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
+        .bar-label { width: 50px; font-weight: 600; }
+        .bar-bg { flex: 1; background: #eee; height: 12px; border-radius: 6px; margin: 0 10px; overflow: hidden; }
+        .bar-fill { background: #ffc107; height: 100%; border-radius: 6px; }
+        .bar-pct { width: 40px; text-align: right; color: #666; }
+        .review-item { padding: 20px 0; border-bottom: 1px solid #eee; }
         .review-item:last-child { border-bottom: none; }
-        .stars { color: #ffcc00; font-size: 1.2rem; }
-        .review-img { max-width: 120px; border-radius: 8px; margin-top: 10px; display: block; border: 1px solid #ddd; }
-        
-        .summary-box { text-align: center; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: sticky; top: 20px; }
-        .big-rating { font-size: 3.5rem; font-weight: 800; margin: 10px 0 0 0; color: #111; }
-        .bar-container { display: flex; align-items: center; margin: 8px 0; font-size: 0.9rem; }
-        .bar-label { width: 50px; text-align: left; }
-        .bar-bg { flex: 1; background: #e9ecef; height: 10px; border-radius: 5px; margin: 0 10px; overflow: hidden; }
-        .bar-fill { background: #ffcc00; height: 100%; border-radius: 5px; }
-        .bar-percent { width: 40px; text-align: right; color: #777; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .btn-submit { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
+        .stars { color: #ffc107; font-size: 1.1rem; margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; margin-bottom: 15px; }
+        .btn-submit { background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
         .btn-submit:hover { background: #218838; }
+        .review-img { max-width: 150px; max-height: 150px; border-radius: 8px; margin-top: 10px; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .summary-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #eee; position: sticky; top: 20px; }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-container">
-            <a href="/" class="logo-link">
-                <span class="logo-text">⭐ RateThatSite</span>
-            </a>
+            <a href="/" class="logo-text">⭐ RateThatSite</a>
             <div>
                 <a href="/le-mie-recensioni" class="nav-link">Le mie recensioni</a>
                 <a href="/" class="nav-link">Torna alla Home</a>
@@ -53,10 +41,9 @@
     </header>
 
     <div class="container">
-        <div class="left-column">
+        <div>
             <div class="card">
-                <h2 class="url-title">Recensioni per:</h2>
-                <p>{{ url_cercato }}</p>
+                <h2 class="rating-big">Recensioni per: {{ url_cercato }}</h2>
             </div>
 
             <div class="card">
@@ -73,7 +60,7 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p>Nessuna recensione presente per questo sito. Sii il primo!</p>
+                    <p>Nessuna recensione presente per questo sito. Sii il primo a scriverne una qui sotto!</p>
                 {% endif %}
             </div>
 
@@ -100,7 +87,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Allega una foto o uno screenshot (Opzionale):</label>
+                        <label>Allega una foto (Opzionale):</label>
                         <input type="file" id="fotoInput" accept="image/*" class="form-control">
                         <div id="caricamentoStato" style="display:none; margin-top: 8px; font-size: 0.95rem;"></div>
                     </div>
@@ -120,7 +107,7 @@
                             submitBtn.innerText = 'Ottimizzazione immagine...';
                             stato.style.display = 'block';
                             stato.style.color = '#d39e00';
-                            stato.innerText = '⏳ Ottimizzazione e riduzione peso immagine in corso...';
+                            stato.innerText = '⏳ Compressione della foto in corso per salvataggio sicuro...';
 
                             const reader = new FileReader();
                             reader.onload = function(event) {
@@ -129,28 +116,22 @@
                                     const canvas = document.createElement('canvas');
                                     let width = img.width;
                                     let height = img.height;
-
-                                    // Riduciamo la dimensione massima a 300px per farla rientrare tassativamente nei limiti di Flask
-                                    const max_size = 300;
+                                    const max_size = 250;
                                     if (width > max_size) {
                                         height *= max_size / width;
                                         width = max_size;
                                     }
-
                                     canvas.width = width;
                                     canvas.height = height;
                                     const ctx = canvas.getContext('2d');
                                     ctx.drawImage(img, 0, 0, width, height);
-
-                                    // Applichiamo una compressione JPEG aggressiva (qualità 0.4) per renderla ultra-leggera
                                     const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
                                     hiddenInput.value = dataUrl;
-
                                     submitBtn.disabled = false;
                                     submitBtn.style.background = '#28a745';
                                     submitBtn.innerText = 'Pubblica Recensione';
                                     stato.style.color = '#28a745';
-                                    stato.innerText = '✅ Foto allegata con successo (formato leggero)!';
+                                    stato.innerText = '✅ Foto pronta e ottimizzata correttamente!';
                                 };
                                 img.src = event.target.result;
                             };
@@ -167,24 +148,25 @@
             </div>
         </div>
 
-        <div class="right-column">
-            <div class="summary-box">
+        <div class="summary-box">
+            <div class="card">
                 <h3>Riepilogo Valutazioni</h3>
-                <div class="big-rating">{{ media_voto }}</div>
+                <div class="rating-big">{{ media_stelle }}</div>
                 <div>
-                    {% if media_voto >= 4.5 %}⭐️⭐️⭐️⭐️⭐️
-                    {% elif media_voto >= 3.5 %}⭐️⭐️⭐️⭐️
-                    {% elif media_voto >= 2.5 %}⭐️⭐️⭐️
-                    {% elif media_voto >= 1.5 %}⭐️⭐️
-                    {% elif media_voto > 0 %}⭐️
-                    {% else %}⭐️⭐️⭐️⭐️⭐️{% endif %}
+                    {% if media_stelle >= 4.5 %}⭐️⭐️⭐️⭐️⭐️
+                    {% elif media_stelle >= 3.5 %}⭐️⭐️⭐️⭐️
+                    {% elif media_stelle >= 2.5 %}⭐️⭐️⭐️
+                    {% elif media_stelle >= 1.5 %}⭐️⭐️
+                    {% elif media_stelle > 0 %}⭐️
+                    {% else %}🚫 Nessuna stella
+                    {% endif %}
                 </div>
                 <p>Su un totale di {{ totale_recensioni }} recensioni</p>
                 {% for stella in [5, 4, 3, 2, 1] %}
                 <div class="bar-container">
                     <div class="bar-label">{{ stella }} ★</div>
                     <div class="bar-bg"><div class="bar-fill" style="width: {{ percentuali[stella] }}%;"></div></div>
-                    <div class="bar-percent">{{ percentuali[stella] }}%</div>
+                    <div class="bar-pct">{{ percentuali[stella] }}%</div>
                 </div>
                 {% endfor %}
             </div>

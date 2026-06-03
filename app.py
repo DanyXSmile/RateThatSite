@@ -1,115 +1,122 @@
 import os
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, session, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "ratethatsite_ultra_secure_key_2026")
 
-# CHIAVE DI SICUREZZA ROBUSTA PER LE SESSIONI DI VERCEL
-app.secret_key = os.environ.get("SECRET_KEY", "chiave_super_segreta_per_le_recensioni_12345")
+# DATABASE IN MEMORIA (Previene il crash dei cookie a 4KB e supporta le foto)
+# Contiene alcune recensioni iniziali per far funzionare la linea animata scorrevole
+MOCK_DB = {
+    "utenti": ["Daniil", "Aura", "Marco", "Sofia"],
+    "recensioni": [
+        {"autore": "Aura", "site_url": "github.com", "comment": "GitHub mi ha salvato la vita, essenziale per programmare!", "rating": 5, "foto_recensione": ""},
+        {"autore": "Marco", "site_url": "google.com", "comment": "Il motore di ricerca migliore di sempre, pulito e veloce.", "rating": 5, "foto_recensione": ""},
+        {"autore": "Sofia", "site_url": "spotify.com", "comment": "Ottima app per la musica, ma la pubblicità nella versione free è troppa.", "rating": 3, "foto_recensione": ""},
+        {"autore": "Daniil", "site_url": "vercel.com", "comment": " some bug all'inizio ma il deploy dei siti web è istantaneo. Fantastico.", "rating": 4, "foto_recensione": ""}
+    ]
+}
 
 @app.before_request
 def richiedi_nome():
     if 'username' not in session and request.endpoint not in ['login', 'static']:
-        return redirect(url_for('login'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        nome = request.form.get('username', '').strip()
-        if nome:
-            session['username'] = nome
-            if 'reviews_data' not in session:
-                session['reviews_data'] = []
-            session.modified = True
-            return redirect(url_for('index'))
-    return render_template('login.html')
+        return redirect(url_for('index'))
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'username' not in session:
+        return render_template('index.html', mostre_login=True, errore_user=None)
+    return render_template('index.html', mostre_login=False, recensioni_loop=MOCK_DB['recensioni'])
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username', '').strip()
+    if not username:
+        return redirect(url_for('index'))
+
+    if username in MOCK_DB['utenti'] or username.lower() in [u.lower() for u in MOCK_DB['utenti']]:
+        return render_template('index.html', mostre_login=True, errore_user="Questo username è già in uso. Scegline un altro!")
+
+    MOCK_DB['utenti'].append(username)
+    session['username'] = username
+    session.modified = True
+    return redirect(url_for('index'))
 
 @app.route('/cerca', methods=['GET', 'POST'])
 def cerca():
-    if request.method == 'POST':
-        site_url = request.form.get('site_url', '').strip()
-    else:
-        site_url = request.args.get('url', '') or request.args.get('site_url', '')
-        site_url = site_url.strip()
-
-    if not site_url:
+    if 'username' not in session:
         return redirect(url_for('index'))
 
-    tutte_le_recensioni = session.get('reviews_data', [])
-    
-    recensioni_trovate = []
-    voti = []
-    # Inizializziamo il conteggio per le barre delle valutazioni (da 1 a 5 stelle)
+    if request.method == 'POST':
+        url_cercato = request.form.get('site_url', '').strip().lower()
+        url_cercato = url_cercato.replace('https://', '').replace('http://', '').replace('www.', '')
+        if url_cercato.endswith('/'):
+            url_cercato = url_cercato[:-1]
+    else:
+        url_cercato = request.args.get('url', '').strip().lower()
+
+    if not url_cercato:
+        return redirect(url_for('index'))
+
+    recensioni_sito = [r for r in MOCK_DB['recensioni'] if r['site_url'] == url_cercato]
+
+    totale_recensioni = len(recensioni_sito)
+    media_stelle = 0
     conteggio_stelle = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    percentuali = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
 
-    for r in tutte_le_recensioni:
-        if r.get('site_url') == site_url:
-            recensioni_trovate.append(r)
-            try:
-                valore_voto = int(r['rating'])
-                voti.append(valore_voto)
-                if valore_voto in conteggio_stelle:
-                    conteggio_stelle[valore_voto] += 1
-            except:
-                pass
-
-    # Calcolo della media e delle percentuali per la barra di riepilogo grafico
-    totale_recensioni = len(recensioni_trovate)
-    media_voto = round(sum(voti) / totale_recensioni, 1) if totale_recensioni > 0 else 0
-
-    percentuali_stelle = {}
-    for stella, count in conteggio_stelle.items():
-        percentuali_stelle[stella] = int((count / totale_recensioni) * 100) if totale_recensioni > 0 else 0
+    if totale_recensioni > 0:
+        somma = 0
+        for r in recensioni_sito:
+            somma += r['rating']
+            conteggio_stelle[r['rating']] += 1
+        media_stelle = round(somma / totale_recensioni, 1)
+        for stella in conteggio_stelle:
+            percentuali[stella] = round((conteggio_stelle[stella] / totale_recensioni) * 100)
 
     return render_template(
-        'risultati.html', 
-        url_cercato=site_url, 
-        recensioni=recensioni_trovate,
-        media_voto=media_voto,
+        'risultati.html',
+        url_cercato=url_cercato,
+        recensioni=recensioni_sito,
         totale_recensioni=totale_recensioni,
-        percentuali=percentuali_stelle
+        media_stelle=media_stelle,
+        conteggio_stelle=conteggio_stelle,
+        percentuali=percentuali
     )
 
 @app.route('/aggiungi_recensione', methods=['POST'])
 def aggiungi_recensione():
-    # Se per qualunque motivo la sessione si svuota, evitiamo il crash e rimandiamo al login
     if 'username' not in session:
-        return redirect(url_for('login'))
-        
+        return redirect(url_for('index'))
+
     autore = session['username']
-    site_url = request.form.get('site_url', '').strip()
+    site_url = request.form.get('site_url', '').strip().lower()
     comment = request.form.get('comment', '').strip()
-    rating = request.form.get('rating')
-    
-    # Invece di salvare tutto il testo della foto che fa saltare i cookie,
-    # salviamo solo un valore booleano o un testo finto leggerissimo.
-    ha_foto = request.form.get('foto_base64', '') != ''
+    rating = int(request.form.get('rating', 5))
+    foto_base64 = request.form.get('foto_base64', '')
 
     nuova_recensione = {
         'autore': autore,
         'site_url': site_url,
         'comment': comment,
-        'rating': int(rating),
-        'ha_foto': ha_foto  # Questo occupa pochissimi byte!
+        'rating': rating,
+        'foto_recensione': foto_base64
     }
-    
-    recensioni_attuali = session.get('reviews_data', [])
-    recensioni_attuali.append(nuova_recensione)
-    session['reviews_data'] = recensioni_attuali
-    session.modified = True
-    
+
+    MOCK_DB['recensioni'].append(nuova_recensione)
     return redirect(url_for('cerca', url=site_url))
 
 @app.route('/le-mie-recensioni')
 def le_mie_recensioni():
-    autore = session.get('username')
-    tutte_le_recensioni = session.get('reviews_data', [])
-    
-    mie_recensioni = [r for r in tutte_le_recensioni if r.get('autore') == autore]
-    return render_template('le_mie_recensioni.html', recensioni=mie_recensioni, utente=autore)
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    mie_recensioni = [r for r in MOCK_DB['recensioni'] if r['autore'] == session['username']]
+    return render_template('le_mie_recensioni.html', recensioni=mie_recensioni)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

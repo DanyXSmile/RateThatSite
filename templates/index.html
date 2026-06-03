@@ -3,33 +3,79 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cerca un Sito - RateThatSite</title>
+  <title>RateThatSite - Recensioni Siti Web</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
-    .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 15px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
-    .header-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-    .logo-text { font-size: 1.6rem; font-weight: 800; color: #111; text-decoration: none; }
-    .nav-link { color: #007bff; text-decoration: none; font-weight: bold; margin-left: 20px; }
-    .search-container { max-width: 650px; margin: 100px auto; padding: 0 20px; text-align: center; }
-    .main-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; color: #111; }
-    .search-box { display: flex; gap: 10px; margin-top: 30px; background: white; padding: 8px; border-radius: 50px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
+    .main-header { background: #ffffff; border-bottom: 1px solid #eaeaea; padding: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .logo-text { font-size: 1.6rem; font-weight: 800; color: #111; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+    .logo-text span { color: #ffc107; }
+    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-link { color: #007bff; text-decoration: none; font-weight: 600; font-size: 1rem; }
+    .nav-link:hover { text-decoration: underline; }
+    .btn-logout { color: #dc3545; font-size: 0.9rem; text-decoration: none; margin-left: 10px; }
+    .login-wrapper { display: flex; justify-content: center; align-items: center; height: 85vh; }
+    .login-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 400px; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+    .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+    .btn-login { background: #28a745; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+    .btn-login:hover { background: #218838; }
+    .error-msg { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 500; }
+    .search-container { max-width: 700px; margin: 120px auto 60px auto; padding: 0 20px; text-align: center; }
+    .main-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 12px; color: #111; }
+    .search-box { display: flex; gap: 10px; margin-top: 30px; background: white; padding: 8px; border-radius: 50px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); border: 1px solid #eee; }
     .search-input { flex: 1; border: none; padding: 15px 25px; font-size: 1.1rem; border-radius: 50px; outline: none; }
     .search-btn { background: #007bff; color: white; border: none; padding: 15px 35px; font-size: 1.1rem; font-weight: bold; border-radius: 50px; cursor: pointer; transition: background 0.2s; }
     .search-btn:hover { background: #0056b3; }
+    .homepage-wrapper { position: relative; }
+    .ticker-wrap { width: 100%; overflow: hidden; background: #ffffff; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; margin-top: 40px; }
+    .ticker { display: flex; width: max-content; animation: scrollTicker 30s linear infinite; }
+    .ticker:hover { animation-play-state: paused; }
+    .ticker-item { padding: 0 30px; border-right: 2px solid #eee; font-size: 1rem; color: #444; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .ticker-stars { color: #ffc107; font-weight: bold; }
+    .ticker-url { font-weight: bold; color: #007bff; }
+    @keyframes scrollTicker {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
   </style>
 </head>
 <body>
   <header class="main-header">
     <div class="header-container">
-      <a class="logo-text" href="/">⭐ RateThatSite</a>
-      <div>
-        <span>Ciao, <strong>{{ session.get('username', 'Utente') }}</strong>!</span>
-        <a class="nav-link" href="/le-mie-recensioni">Le mie recensioni</a>
+      <a class="logo-text" href="/">RateThatSite <span>⭐️</span></a>
+      <div class="nav-links">
+        {% if not mostre_login %}
+          <span>Ciao, <strong>{{ session['username'] }}</strong>!</span>
+          <a class="nav-link" href="/le-mie-recensioni">Le mie recensioni</a>
+          <a class="nav-link btn-logout" href="/logout">Esci</a>
+        {% else %}
+          <a class="nav-link" href="#">Chi siamo</a>
+        {% endif %}
       </div>
     </div>
   </header>
 
-  <main class="search-container">
+  {% if mostre_login %}
+  <div class="login-wrapper">
+    <div class="login-container">
+      <h1>Accedi</h1>
+      <p>Scegli un nome utente unico per inserire le tue valutazioni.</p>
+      {% if errore_user %}
+        <div class="error-msg">{{ errore_user }}</div>
+      {% endif %}
+      <form method="post" action="/login">
+        <div class="form-group">
+          <label for="username">Nome Utente:</label>
+          <input id="username" name="username" class="form-control" type="text" placeholder="Es. Maria123" required>
+        </div>
+        <button class="btn-login" type="submit">Entra nel Sito</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <main class="search-container homepage-wrapper">
     <h1 class="main-title">Trova o recensisci un sito web</h1>
     <p>Inserisci l'URL qui sotto per leggere le opinioni o lasciare la tua valutazione</p>
     <form method="post" action="/cerca">
@@ -38,7 +84,20 @@
         <button class="search-btn" type="submit">Cerca</button>
       </div>
     </form>
+    <div class="ticker-wrap">
+      <div class="ticker">
+        {% for i in range(2) %}
+          {% for r in recensioni_loop %}
+            <div class="ticker-item">
+              <span class="ticker-url">{{ r.site_url }}</span>
+              <span class="ticker-stars">{% for s in range(r.rating) %}⭐️{% endfor %}</span>
+              <span>"{{ r.comment[:60] }}{% if r.comment|length > 60 %}...{% endif %}" - {{ r.autore }}</span>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
   </main>
-
+  {% endif %}
 </body>
 </html>
