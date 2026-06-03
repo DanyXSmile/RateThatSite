@@ -2,50 +2,54 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Profilo di {{ utente }} - RateThatSite</title>
+    <title>Le mie recensioni - RateThatSite</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; }
-        .main-header { background: #ffffff; border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
-        .header-container { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo-text { font-size: 1.5rem; font-weight: 800; color: #111; text-decoration: none; }
-        .nav-link { color: #444; text-decoration: none; font-weight: 600; margin-left: 20px; }
-        .nav-link:hover { color: #007bff; }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .profile-title { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
-        .review-card { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 20px; border-left: 5px solid #ffcc00; }
-        .stars { color: #ffcc00; margin: 5px 0; }
-        .review-img { max-width: 150px; border-radius: 8px; margin-top: 10px; display: block; border: 1px solid #ddd; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9fbfd; margin: 0; padding: 0; }
+        .main-header { background: #ffffff; border-bottom: 1px solid #eef2f5; padding: 18px 0; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo-text { font-size: 1.7rem; font-weight: 800; color: #111; text-decoration: none; }
+        .container { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .panel { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #eef2f5; }
+        .item { padding: 20px 0; border-bottom: 1px solid #f0f2f5; }
+        .item:last-child { border-bottom: none; }
+        .stars { color: #ffc107; font-size: 1.1rem; margin: 5px 0; }
+        .site-badge { background: #e0ebff; color: #0052cc; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; }
+        .empty-msg { color: #666; font-size: 1.1rem; text-align: center; padding: 40px; }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-container">
-            <a href="/" class="logo-text">⭐ RateThatSite</a>
-            <div>
-                <a href="/" class="nav-link">Home</a>
-                <a href="/le-mie-recensioni" class="nav-link">Le mie recensioni</a>
-            </div>
+            <a href="/" class="logo-text">RateThatSite⭐</a>
+            <a href="/" style="color: #333; text-decoration: none; font-weight: 600;">← Torna alla Home</a>
         </div>
     </header>
 
     <div class="container">
-        <h1 class="profile-title">Profilo di {{ utente }}</h1>
-        <p>Le tue recensioni pubblicate:</p>
+        <div class="panel">
+            <h1>Area di {{ session['username'] }}</h1>
+            <p>Tutte le valutazioni che hai pubblicato sulla piattaforma:</p>
 
-        {% if recensioni %}
-            {% for r in recensioni %}
-            <div class="review-card">
-                <h4>Sito: <a href="{{ r.site_url }}" target="_blank">{{ r.site_url }}</a></h4>
-                <p class="stars">Voto: {{ r.rating }}/5 {% for i in range(r.rating|int) %}⭐️{% endfor %}</p>
-                <p><strong>Commento:</strong> {{ r.comment }}</p>
-                {% if r.foto_recensione %}
-                    <img class="review-img" src="{{ r.foto_recensione }}" alt="Foto allegata">
-                {% endif %}
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>Non hai ancora scritto nessuna recensione.</p>
-        {% endif %}
+            {% if not recensioni %}
+                <div class="empty-msg">Non hai ancora scritto nessuna recensione.</div>
+            {% else %}
+                {% for r in recensioni %}
+                    <div class="item">
+                        <div>
+                            <span class="site-badge">{{ r.site_url }}</span>
+                        </div>
+                        <div class="stars">
+                            {% for s in range(r.rating) %}★{% endfor %}
+                        </div>
+                        <p>{{ r.comment }}</p>
+                        {% if r.foto %}
+                            <img src="{{ r.foto }}" alt="Screenshot allegato" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
+
 </body>
 </html>

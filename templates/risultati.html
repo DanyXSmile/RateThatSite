@@ -2,175 +2,172 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Recensioni per {{ url_cercato }} - RateThatSite</title>
+    <title>Recensioni per {{ url_cercato }}</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
-        .main-header { background: #ffffff; border-bottom: 1px solid #eee; padding: 15px 0; }
-        .header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo-text { font-size: 1.5rem; font-weight: 800; color: #111; text-decoration: none; }
-        .nav-link { color: #007bff; text-decoration: none; font-weight: bold; margin-left: 20px; }
-        .nav-link:hover { text-decoration: underline; }
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-        @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 20px; border: 1px solid #eee; }
-        .rating-big { font-size: 3.5rem; font-weight: 800; margin: 0; color: #111; }
-        .bar-container { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
-        .bar-label { width: 50px; font-weight: 600; }
-        .bar-bg { flex: 1; background: #eee; height: 12px; border-radius: 6px; margin: 0 10px; overflow: hidden; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9fbfd; margin: 0; padding: 0; color: #222; }
+        .main-header { background: #ffffff; border-bottom: 1px solid #eef2f5; padding: 18px 0; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo-text { font-size: 1.7rem; font-weight: 800; color: #111; text-decoration: none; }
+        .nav-link { color: #333; text-decoration: none; font-weight: 600; margin-left: 20px; }
+        .nav-link:hover { color: #007bff; }
+        
+        .layout-grid { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .layout-grid { grid-template-columns: 1fr; } }
+        
+        .panel { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); margin-bottom: 20px; border: 1px solid #eef2f5; }
+        .no-reviews-box { background: #fff8eb; color: #b7791f; border-left: 4px solid #f6ad55; padding: 20px; border-radius: 8px; font-weight: 600; margin-bottom: 25px; }
+        
+        /* RIASSUNTO TRUSTPILOT */
+        .big-score { font-size: 3.8rem; font-weight: 800; margin: 0; }
+        .bar-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
+        .bar-label { width: 45px; font-weight: 600; }
+        .bar-rail { flex: 1; background: #eee; height: 12px; border-radius: 6px; margin: 0 12px; overflow: hidden; }
         .bar-fill { background: #ffc107; height: 100%; border-radius: 6px; }
-        .bar-pct { width: 40px; text-align: right; color: #666; }
-        .review-item { padding: 20px 0; border-bottom: 1px solid #eee; }
-        .review-item:last-child { border-bottom: none; }
-        .stars { color: #ffc107; font-size: 1.1rem; margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; margin-bottom: 15px; }
-        .btn-submit { background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
-        .btn-submit:hover { background: #218838; }
-        .review-img { max-width: 150px; max-height: 150px; border-radius: 8px; margin-top: 10px; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .summary-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #eee; position: sticky; top: 20px; }
+        .bar-count { width: 35px; text-align: right; color: #666; }
+        
+        .review-card { padding: 20px 0; border-bottom: 1px solid #f0f2f5; }
+        .review-card:last-child { border-bottom: none; }
+        .stars-gold { color: #ffc107; font-size: 1.2rem; margin: 4px 0; }
+        
+        .input-field { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; margin-bottom: 15px; font-family: inherit; }
+        .submit-btn { background: #00b67a; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
+        .attached-img { max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 12px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-container">
-            <a href="/" class="logo-text">⭐ RateThatSite</a>
+            <a href="/" class="logo-text">RateThatSite⭐</a>
             <div>
                 <a href="/le-mie-recensioni" class="nav-link">Le mie recensioni</a>
-                <a href="/" class="nav-link">Torna alla Home</a>
+                <a href="/" class="nav-link">← Nuova ricerca</a>
             </div>
         </div>
     </header>
 
-    <div class="container">
+    <div class="layout-grid">
         <div>
-            <div class="card">
-                <h2 class="rating-big">Recensioni per: {{ url_cercato }}</h2>
+            <div class="panel">
+                <h2>Risultati per: {{ url_cercato }}</h2>
             </div>
 
-            <div class="card">
-                <h3>Recensioni degli utenti</h3>
-                {% if recensioni %}
-                    {% for r in recensioni %}
-                    <div class="review-item">
-                        <p><strong>👤 {{ r.autore }}</strong></p>
-                        <p class="stars">{% for i in range(r.rating|int) %}⭐️{% endfor %} ({{ r.rating }}/5)</p>
-                        <p>{{ r.comment }}</p>
-                        {% if r.foto_recensione %}
-                            <img class="review-img" src="{{ r.foto_recensione }}" alt="Foto allegata">
-                        {% endif %}
-                    </div>
-                    {% endfor %}
+            <div class="panel">
+                {% if totale_recensioni == 0 %}
+                    <div class="no-reviews-box">Non ci sono recensioni per questo sito</div>
                 {% else %}
-                    <p>Nessuna recensione presente per questo sito. Sii il primo a scriverne una qui sotto!</p>
+                    <h3>Recensioni della community</h3>
+                    {% for r in recensioni %}
+                        <div class="review-card">
+                            <p><strong>👤 {{ r.autore }}</strong></p>
+                            <div class="stars-gold">
+                                {% for s in range(r.rating) %}★{% endfor %}
+                            </div>
+                            <p>{{ r.comment }}</p>
+                            {% if r.foto %}
+                                <img src="{{ r.foto }}" alt="Foto Recensione" class="attached-img">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 {% endif %}
             </div>
 
-            <div class="card">
-                <h3>Scrivi una recensione per questo sito</h3>
+            <div class="panel">
+                <h3>Aggiungi la tua valutazione</h3>
                 <form action="/aggiungi_recensione" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="site_url" value="{{ url_cercato }}">
-                    <input type="hidden" id="fotoBase64" name="foto_base64" value="">
+                    <input type="hidden" id="foto_base64" name="foto_base64" value="">
 
-                    <div class="form-group">
-                        <label>Valutazione:</label>
-                        <select name="rating" class="form-control" required>
-                            <option value="5">5 Stelle ⭐️⭐️⭐️⭐️⭐️</option>
-                            <option value="4">4 Stelle ⭐️⭐️⭐️⭐️</option>
-                            <option value="3">3 Stelle ⭐️⭐️⭐️</option>
-                            <option value="2">2 Stelle ⭐️⭐️</option>
-                            <option value="1">1 Stella ⭐️</option>
+                    <div>
+                        <label>Voto (Stelle):</label>
+                        <select name="rating" class="input-field" required>
+                            <option value="5">5 Stelle ★★★★★ (Ottimo)</option>
+                            <option value="4">4 Stelle ★★★★ (Buono)</option>
+                            <option value="3">3 Stelle ★★★ (Sufficiente)</option>
+                            <option value="2">2 Stelle ★★ (Scarso)</option>
+                            <option value="1">1 Stella ★ (Pessimo)</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Il tuo Commento:</label>
-                        <textarea name="comment" class="form-control" rows="4" required></textarea>
+                    <div>
+                        <label>Commento:</label>
+                        <textarea name="comment" class="input-field" rows="4" required></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Allega una foto (Opzionale):</label>
-                        <input type="file" id="fotoInput" accept="image/*" class="form-control">
-                        <div id="caricamentoStato" style="display:none; margin-top: 8px; font-size: 0.95rem;"></div>
+                    <div>
+                        <label>Carica una foto (Opzionale):</label>
+                        <input type="file" id="uploadImmagine" accept="image/*" class="input-field">
+                        <div id="compressStatus" style="display:none; margin-bottom: 15px; font-size: 0.9rem; color: #666;"></div>
                     </div>
 
-                    <button type="submit" id="submitBtn" class="btn-submit">Pubblica Recensione</button>
+                    <button type="submit" id="btnInvia" class="submit-btn">Salva Recensione</button>
                 </form>
                 <script>
-                    document.getElementById('fotoInput').addEventListener('change', function(e) {
+                    document.getElementById('uploadImmagine').addEventListener('change', function(e) {
                         const file = e.target.files[0];
-                        const stato = document.getElementById('caricamentoStato');
-                        const submitBtn = document.getElementById('submitBtn');
-                        const hiddenInput = document.getElementById('fotoBase64');
+                        const status = document.getElementById('compressStatus');
+                        const btn = document.getElementById('btnInvia');
+                        const hidden = document.getElementById('foto_base64');
 
                         if (file) {
-                            submitBtn.disabled = true;
-                            submitBtn.style.background = '#85929E';
-                            submitBtn.innerText = 'Ottimizzazione immagine...';
-                            stato.style.display = 'block';
-                            stato.style.color = '#d39e00';
-                            stato.innerText = '⏳ Compressione della foto in corso per salvataggio sicuro...';
+                            btn.disabled = true;
+                            btn.style.background = '#aaa';
+                            status.style.display = 'block';
+                            status.innerText = '⏳ Ottimizzazione screenshot/immagine in corso...';
 
                             const reader = new FileReader();
                             reader.onload = function(event) {
                                 const img = new Image();
                                 img.onload = function() {
                                     const canvas = document.createElement('canvas');
-                                    let width = img.width;
-                                    let height = img.height;
-                                    const max_size = 250;
-                                    if (width > max_size) {
-                                        height *= max_size / width;
-                                        width = max_size;
-                                    }
-                                    canvas.width = width;
-                                    canvas.height = height;
+                                    let w = img.width;
+                                    let h = img.height;
+                                    
+                                    // Ridimensionamento preventivo per non superare limiti server
+                                    if (w > 300) { h *= 300 / w; w = 300; }
+                                    canvas.width = w;
+                                    canvas.height = h;
+                                    
                                     const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(img, 0, 0, width, height);
-                                    const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
-                                    hiddenInput.value = dataUrl;
-                                    submitBtn.disabled = false;
-                                    submitBtn.style.background = '#28a745';
-                                    submitBtn.innerText = 'Pubblica Recensione';
-                                    stato.style.color = '#28a745';
-                                    stato.innerText = '✅ Foto pronta e ottimizzata correttamente!';
+                                    ctx.drawImage(img, 0, 0, w, h);
+                                    
+                                    // Compressione bilanciata
+                                    hidden.value = canvas.toDataURL('image/jpeg', 0.5);
+                                    btn.disabled = false;
+                                    btn.style.background = '#00b67a';
+                                    status.innerText = '✅ Foto ottimizzata ed allegata!';
                                 };
                                 img.src = event.target.result;
                             };
                             reader.readAsDataURL(file);
-                        } else {
-                            hiddenInput.value = '';
-                            stato.style.display = 'none';
-                            submitBtn.disabled = false;
-                            submitBtn.style.background = '#28a745';
-                            submitBtn.innerText = 'Pubblica Recensione';
                         }
                     });
                 </script>
             </div>
         </div>
 
-        <div class="summary-box">
-            <div class="card">
-                <h3>Riepilogo Valutazioni</h3>
-                <div class="rating-big">{{ media_stelle }}</div>
-                <div>
-                    {% if media_stelle >= 4.5 %}⭐️⭐️⭐️⭐️⭐️
-                    {% elif media_stelle >= 3.5 %}⭐️⭐️⭐️⭐️
-                    {% elif media_stelle >= 2.5 %}⭐️⭐️⭐️
-                    {% elif media_stelle >= 1.5 %}⭐️⭐️
-                    {% elif media_stelle > 0 %}⭐️
-                    {% else %}🚫 Nessuna stella
-                    {% endif %}
-                </div>
-                <p>Su un totale di {{ totale_recensioni }} recensioni</p>
-                {% for stella in [5, 4, 3, 2, 1] %}
-                <div class="bar-container">
-                    <div class="bar-label">{{ stella }} ★</div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: {{ percentuali[stella] }}%;"></div></div>
-                    <div class="bar-pct">{{ percentuali[stella] }}%</div>
-                </div>
-                {% endfor %}
+        <div class="panel">
+            <h3>Media Valutazioni</h3>
+            <div class="big-score">{{ media_stelle }}</div>
+            <div>
+                {% if media_stelle >= 4.5 %}★★★★★
+                {% elif media_stelle >= 3.5 %}★★★★
+                {% elif media_stelle >= 2.5 %}★★★
+                {% elif media_stelle >= 1.5 %}★★
+                {% elif media_stelle > 0 %}★
+                {% else %}Nessuna Stella
+                {% endif %}
             </div>
+            <p>Basato su {{ totale_recensioni }} recensioni</p>
+            
+            {% for stella in [5,4,3,2,1] %}
+            <div class="bar-row">
+                <div class="bar-label">{{ stella }} ★</div>
+                <div class="bar-rail"><div class="bar-fill" style="width: {{ percentuali[stella] }}%;"></div></div>
+                <div class="bar-count">({{ conteggio_stelle[stella] }})</div>
+            </div>
+            {% endfor %}
         </div>
     </div>
+
 </body>
 </html>
